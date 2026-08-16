@@ -562,7 +562,7 @@ function renderClubsDirectory(clubs) {
 
 async function joinClub(btn, clubName) {
   try {
-    const res = await api('/join', {
+    const res = await api('/clubs/join', {
       method: 'POST',
       body: JSON.stringify({ clubName })
     });
