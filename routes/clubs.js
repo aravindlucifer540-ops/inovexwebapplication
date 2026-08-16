@@ -11,12 +11,19 @@ const REC_CLUBS = [
   { id: "club-5", name: "Fine Arts & Music Club REC", tag: "Fine Arts Club", category: "Cultural", membersCount: 110, leadName: "Priya Sundaram", email: "lead.rotaract@rajalakshmi.edu.in", description: "Music band practice in Indoor auditorium, annual culturals." }
 ];
 
-// Get Club Directory
+// Get Club Directory with user application status
 router.get('/', verifyToken, (req, res) => {
+  const db = getDatabase();
+  const applications = db.clubApplications || [];
+  const userEmail = req.user.email;
+
+  const userApps = applications.filter(a => a.studentEmail === userEmail);
+
   res.json({
     success: true,
     count: REC_CLUBS.length,
-    data: REC_CLUBS
+    data: REC_CLUBS,
+    userApplications: userApps
   });
 });
 
@@ -24,10 +31,10 @@ router.get('/', verifyToken, (req, res) => {
 router.get('/announcements', verifyToken, requireClubAccess, (req, res) => {
   const db = getDatabase();
   const { tag, search } = req.query;
-  let filtered = db.clubAnnouncements;
+  let filtered = db.clubAnnouncements || [];
 
   if (tag && tag !== 'All') {
-    filtered = filtered.filter(a => a.tags.includes(tag) || a.clubTag === tag);
+    filtered = filtered.filter(a => a.tags.includes(tag) || a.clubTag === tag || a.clubName === tag);
   }
 
   if (search) {
@@ -43,7 +50,7 @@ router.get('/announcements', verifyToken, requireClubAccess, (req, res) => {
   });
 });
 
-// Post Announcement
+// Post Announcement (Restricted to Club Leads, Staff, Admins)
 router.post('/announcements', verifyToken, (req, res) => {
   const db = getDatabase();
   if (!req.user.isClubLead && !req.user.isStaff && !req.user.isAdmin) {
@@ -68,9 +75,11 @@ router.post('/announcements', verifyToken, (req, res) => {
     tags: Array.isArray(tags) ? tags : ['Notice', 'Updates'],
     content: content.trim(),
     date: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
     postedBy: req.user.email
   };
 
+  if (!db.clubAnnouncements) db.clubAnnouncements = [];
   db.clubAnnouncements.unshift(newAnn);
   saveDatabase();
 
@@ -81,7 +90,7 @@ router.post('/announcements', verifyToken, (req, res) => {
   });
 });
 
-// Apply / Join Club
+// Apply / Join Club (Requires Lead Approval)
 router.post('/join', verifyToken, (req, res) => {
   const db = getDatabase();
   const { clubName } = req.body;
@@ -89,20 +98,154 @@ router.post('/join', verifyToken, (req, res) => {
     return res.status(400).json({ success: false, message: 'Club name is required.' });
   }
 
-  const user = db.users.find(u => u.email === req.user.email);
-  if (user) {
-    if (!user.clubsJoined.includes(clubName)) {
-      user.clubsJoined.push(clubName);
+  if (!db.clubApplications) db.clubApplications = [];
+
+  const userEmail = req.user.email;
+  const user = db.users.find(u => u.email === userEmail);
+
+  // Check if already joined
+  if (user && user.clubsJoined && user.clubsJoined.includes(clubName)) {
+    return res.json({
+      success: true,
+      message: `You are already an approved member of ${clubName}.`,
+      status: 'approved',
+      clubsJoined: user.clubsJoined
+    });
+  }
+
+  // Auto-approve if user is Admin, Staff, or the Club Lead
+  const isLeadOrAdmin = req.user.isAdmin || req.user.isStaff || req.user.isClubLead;
+  
+  if (isLeadOrAdmin) {
+    if (user) {
+      if (!user.clubsJoined.includes(clubName)) user.clubsJoined.push(clubName);
       user.isClubMember = true;
     }
+    saveDatabase();
+
+    return res.json({
+      success: true,
+      message: `Coordinator privileges verified! Auto-approved membership for ${clubName}.`,
+      status: 'approved',
+      clubsJoined: user ? user.clubsJoined : [clubName]
+    });
+  }
+
+  // Check existing pending application
+  const existingApp = db.clubApplications.find(a => a.studentEmail === userEmail && a.clubName === clubName);
+
+  if (existingApp && existingApp.status === 'pending') {
+    return res.json({
+      success: true,
+      message: `Your membership application for ${clubName} is pending Lead approval.`,
+      status: 'pending'
+    });
+  }
+
+  // Create new pending application
+  const newApp = {
+    id: `app-${Date.now()}`,
+    clubName,
+    studentName: req.user.name,
+    studentEmail: userEmail,
+    department: req.user.department || 'CSE',
+    year: req.user.year || '2nd Year',
+    status: 'pending',
+    appliedAt: new Date().toISOString()
+  };
+
+  db.clubApplications.unshift(newApp);
+  saveDatabase();
+
+  res.json({
+    success: true,
+    message: `Application submitted to ${clubName} Coordinator Lead! Awaiting approval.`,
+    status: 'pending',
+    application: newApp
+  });
+});
+
+// Get Pending Membership Applications (Restricted to Club Leads, Staff, Admins)
+router.get('/applications', verifyToken, (req, res) => {
+  const db = getDatabase();
+  if (!req.user.isClubLead && !req.user.isStaff && !req.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Permission Denied: Only Club Coordinators, Staff, or Admins can review club membership applications.'
+    });
+  }
+
+  const applications = db.clubApplications || [];
+
+  res.json({
+    success: true,
+    count: applications.length,
+    data: applications
+  });
+});
+
+// Approve Pending Application
+router.post('/applications/:id/approve', verifyToken, (req, res) => {
+  const db = getDatabase();
+  if (!req.user.isClubLead && !req.user.isStaff && !req.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Permission Denied: Only Club Coordinators, Staff, or Admins can approve applications.'
+    });
+  }
+
+  const { id } = req.params;
+  const app = (db.clubApplications || []).find(a => a.id === id);
+
+  if (!app) {
+    return res.status(404).json({ success: false, message: 'Application record not found.' });
+  }
+
+  app.status = 'approved';
+  app.approvedBy = req.user.email;
+  app.approvedAt = new Date().toISOString();
+
+  // Update user record
+  const student = db.users.find(u => u.email === app.studentEmail);
+  if (student) {
+    if (!student.clubsJoined.includes(app.clubName)) {
+      student.clubsJoined.push(app.clubName);
+    }
+    student.isClubMember = true;
   }
 
   saveDatabase();
 
   res.json({
     success: true,
-    message: `Application submitted! You are now a member of ${clubName}.`,
-    clubsJoined: user ? user.clubsJoined : [clubName]
+    message: `Application approved! ${app.studentName} is now an official member of ${app.clubName}.`,
+    data: app
+  });
+});
+
+// Reject Pending Application
+router.post('/applications/:id/reject', verifyToken, (req, res) => {
+  const db = getDatabase();
+  if (!req.user.isClubLead && !req.user.isStaff && !req.user.isAdmin) {
+    return res.status(403).json({ success: false, message: 'Permission Denied.' });
+  }
+
+  const { id } = req.params;
+  const app = (db.clubApplications || []).find(a => a.id === id);
+
+  if (!app) {
+    return res.status(404).json({ success: false, message: 'Application record not found.' });
+  }
+
+  app.status = 'rejected';
+  app.rejectedBy = req.user.email;
+
+  saveDatabase();
+
+  res.json({
+    success: true,
+    message: `Application for ${app.studentName} was rejected.`,
+    data: app
   });
 });
 

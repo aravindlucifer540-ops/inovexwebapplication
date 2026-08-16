@@ -8,10 +8,11 @@ let TOKEN = localStorage.getItem('rec_token') || null;
 let CURRENT_USER = JSON.parse(localStorage.getItem('rec_user') || 'null');
 let isHostellerReg = false;
 
-// Global state caches for smooth client filtering
+// Global state caches
 let canteenRawData = null;
 let selectedCanteenCourt = 'All';
 let selectedMessDayName = 'Monday';
+let userApplicationsCache = [];
 
 /* ════════════════════════════════
    UTILITY HELPERS
@@ -45,7 +46,7 @@ function showToast(msg, type = 'success') {
   t.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + escapeHTML(msg);
   t.className = `toast ${type}`;
   t.classList.remove('hidden');
-  setTimeout(() => t.classList.add('hidden'), 3800);
+  setTimeout(() => t.classList.add('hidden'), 4000);
 }
 
 function showError(id, msg) {
@@ -189,6 +190,7 @@ function enterDashboard() {
   populateUserInfo();
   navigate('home', document.querySelector('[data-page=home]'));
   loadHomeData();
+  checkPendingLeadAppsCount();
 }
 
 function populateUserInfo() {
@@ -248,6 +250,8 @@ function populateUserInfo() {
   const isPublisher = CURRENT_USER.isAdmin || CURRENT_USER.isStaff || CURRENT_USER.isClubLead;
   document.getElementById('create-event-btn')?.classList.toggle('hidden', !isPublisher);
   document.getElementById('post-announcement-btn')?.classList.toggle('hidden', !isPublisher);
+  document.getElementById('view-apps-btn')?.classList.toggle('hidden', !isPublisher);
+  document.getElementById('topbar-lead-apps-btn')?.classList.toggle('hidden', !isPublisher);
 
   // Today Date
   const dateEl = document.getElementById('today-date');
@@ -279,7 +283,6 @@ function navigate(page, linkEl) {
   const target = document.getElementById('page-' + page);
   if (target) { target.classList.remove('hidden'); target.classList.add('active'); }
 
-  // Auto-fetch data for the page
   if (page === 'canteen') loadCanteen();
   if (page === 'clubs') loadClubs();
   if (page === 'events') loadEvents();
@@ -301,17 +304,13 @@ function toggleSidebar() {
    1. HOME PAGE
 ════════════════════════════════ */
 async function loadHomeData() {
-  // Canteen rush
   try {
     const cRes = await api('/canteen');
     if (cRes.rushGauge) {
       document.getElementById('stat-canteen-rush').textContent = cRes.rushGauge;
     }
-  } catch (err) {
-    console.warn('Home canteen fetch failed:', err);
-  }
+  } catch (err) { console.warn('Home canteen fetch failed:', err); }
 
-  // Events feed preview
   try {
     const evRes = await api('/events');
     const events = evRes.data || [];
@@ -322,14 +321,11 @@ async function loadHomeData() {
     document.getElementById('home-events-grid').innerHTML = '<div class="empty-state">Could not connect to events API</div>';
   }
 
-  // Lost items count
   try {
     const lfRes = await api('/lost-found?status=lost');
     const items = lfRes.data || [];
     document.getElementById('stat-lost-count').textContent = items.length;
-  } catch (err) {
-    console.warn('Home lost items fetch failed:', err);
-  }
+  } catch (err) { console.warn('Home lost items fetch failed:', err); }
 }
 
 function renderHomeEvents(events) {
@@ -343,17 +339,384 @@ function renderHomeEvents(events) {
 }
 
 /* ════════════════════════════════
-   2. CANTEEN MODULE
+   2. CLUBS & LEAD APPROVAL WORKFLOW
+════════════════════════════════ */
+const clubEmojis = {
+  'Coding Club REC': '💻',
+  'Rotaract Club REC': '🤝',
+  'IEEE REC Student Chapter': '⚡',
+  'Entrepreneurship Development Cell (EDC)': '🚀',
+  'Fine Arts & Music Club REC': '🎨'
+};
+
+async function loadClubs() {
+  const container = document.getElementById('clubs-directory-content');
+  if (container) container.innerHTML = '<div class="loading-state">Loading registered campus clubs...</div>';
+
+  try {
+    const res = await api('/clubs');
+    const clubs = res.data || [];
+    userApplicationsCache = res.userApplications || [];
+    renderClubsDirectory(clubs);
+    loadAnnouncements();
+    checkPendingLeadAppsCount();
+  } catch (err) {
+    if (container) container.innerHTML = `<div class="empty-state">⚠️ ${escapeHTML(err.message)}</div>`;
+  }
+}
+
+function renderClubsDirectory(clubs) {
+  const container = document.getElementById('clubs-directory-content');
+  if (!container) return;
+
+  const joinedList = CURRENT_USER?.clubsJoined || [];
+
+  container.innerHTML = clubs.map(club => {
+    const isJoined = joinedList.some(c => c.toLowerCase() === club.name.toLowerCase() || c.toLowerCase() === club.tag.toLowerCase());
+    const pendingApp = userApplicationsCache.find(a => a.clubName === club.name && a.status === 'pending');
+    const emoji = clubEmojis[club.name] || '🚀';
+
+    let btnText = '🚀 Apply to Join Club';
+    let btnClass = '';
+    
+    if (isJoined) {
+      btnText = '✓ Approved Member';
+      btnClass = 'joined';
+    } else if (pendingApp) {
+      btnText = '⏳ Application Pending Lead Approval';
+      btnClass = 'pending';
+    }
+
+    return `
+      <div class="club-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="club-icon">${emoji}</div>
+          <span class="banner-tag">${escapeHTML(club.category)}</span>
+        </div>
+        <div class="club-name">${escapeHTML(club.name)}</div>
+        <div class="club-desc">${escapeHTML(club.description)}</div>
+        <div style="font-size:.78rem; color:var(--text-secondary);">
+          👤 Lead: <strong>${escapeHTML(club.leadName)}</strong> • 👥 ${club.membersCount || 100}+ Members
+        </div>
+        <button class="join-btn ${btnClass}" onclick="joinClub(this, '${escapeHTML(club.name)}')">
+          ${btnText}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function joinClub(btn, clubName) {
+  try {
+    const res = await api('/clubs/join', {
+      method: 'POST',
+      body: JSON.stringify({ clubName })
+    });
+
+    if (res.status === 'approved') {
+      showToast(res.message || `You are now a member of ${clubName}!`);
+      if (CURRENT_USER) {
+        CURRENT_USER.clubsJoined = res.clubsJoined || [...(CURRENT_USER.clubsJoined || []), clubName];
+        CURRENT_USER.isClubMember = true;
+        localStorage.setItem('rec_user', JSON.stringify(CURRENT_USER));
+      }
+      btn.textContent = '✓ Approved Member';
+      btn.className = 'join-btn joined';
+    } else {
+      showToast(res.message || 'Application submitted to Coordinator Lead!');
+      btn.textContent = '⏳ Application Pending Lead Approval';
+      btn.className = 'join-btn pending';
+    }
+    loadClubs();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function checkPendingLeadAppsCount() {
+  if (!CURRENT_USER || (!CURRENT_USER.isClubLead && !CURRENT_USER.isStaff && !CURRENT_USER.isAdmin)) return;
+
+  try {
+    const res = await api('/clubs/applications');
+    const pendingApps = (res.data || []).filter(a => a.status === 'pending');
+    const badgeEl = document.getElementById('lead-pending-count');
+    if (badgeEl) badgeEl.textContent = pendingApps.length;
+  } catch (err) {
+    console.warn('Check lead apps failed:', err);
+  }
+}
+
+async function openClubAppsModal() {
+  const modal = document.getElementById('club-apps-modal');
+  const container = document.getElementById('club-apps-list');
+  if (modal) modal.classList.remove('hidden');
+  if (container) container.innerHTML = '<div class="loading-state">Fetching membership applications...</div>';
+
+  try {
+    const res = await api('/clubs/applications');
+    const apps = res.data || [];
+    const pendingApps = apps.filter(a => a.status === 'pending');
+
+    if (!pendingApps.length) {
+      container.innerHTML = '<div class="empty-state">🎉 No pending membership applications at the moment!</div>';
+      return;
+    }
+
+    container.innerHTML = pendingApps.map(a => `
+      <div class="app-item-card">
+        <div class="app-student-info">
+          <div class="app-student-name">👤 ${escapeHTML(a.studentName)}</div>
+          <div class="app-student-details">
+            ✉ ${escapeHTML(a.studentEmail)} • ${escapeHTML(a.department)} (${escapeHTML(a.year)})
+          </div>
+          <div style="font-size:.74rem; color:var(--indigo); margin-top:2px;">
+            Target Club: <strong>${escapeHTML(a.clubName)}</strong> • Applied ${timeAgo(a.appliedAt)}
+          </div>
+        </div>
+        <div class="app-actions">
+          <button class="btn-sm" style="background:rgba(16,185,129,.15);color:var(--emerald);" onclick="approveApp('${a.id}')">
+            ✓ Approve
+          </button>
+          <button class="btn-sm" style="background:rgba(239,68,68,.15);color:#f87171;" onclick="rejectApp('${a.id}')">
+            ✕ Reject
+          </button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    if (container) container.innerHTML = `<div class="empty-state">⚠️ ${escapeHTML(err.message)}</div>`;
+  }
+}
+
+async function approveApp(appId) {
+  try {
+    const res = await api(`/clubs/applications/${appId}/approve`, { method: 'POST' });
+    showToast(res.message || 'Student membership approved!');
+    openClubAppsModal();
+    checkPendingLeadAppsCount();
+    loadClubs();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function rejectApp(appId) {
+  try {
+    const res = await api(`/clubs/applications/${appId}/reject`, { method: 'POST' });
+    showToast(res.message || 'Application rejected');
+    openClubAppsModal();
+    checkPendingLeadAppsCount();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function loadAnnouncements() {
+  const container = document.getElementById('announcements-content');
+  const gatedMsg = document.getElementById('announcements-gated-msg');
+  const tag = document.getElementById('ann-tag-filter')?.value || 'All';
+  const search = document.getElementById('ann-search')?.value?.trim() || '';
+
+  if (container) container.innerHTML = '<div class="loading-state">Loading announcements feed...</div>';
+
+  try {
+    let url = '/clubs/announcements?';
+    if (tag && tag !== 'All') url += `tag=${encodeURIComponent(tag)}&`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+
+    const res = await api(url);
+    if (gatedMsg) gatedMsg.classList.add('hidden');
+
+    const items = res.data || [];
+    if (!items.length) {
+      container.innerHTML = '<div class="empty-state">No announcements posted for this filter.</div>';
+      return;
+    }
+
+    container.innerHTML = items.map(a => `
+      <div class="announcement-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="announcement-club">📣 ${escapeHTML(a.clubName)}</div>
+          <span class="announcement-time">${escapeHTML(a.date || '')} (${timeAgo(a.createdAt)})</span>
+        </div>
+        <div class="announcement-title">${escapeHTML(a.title)}</div>
+        <div class="announcement-text">${escapeHTML(a.content)}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    if (gatedMsg) gatedMsg.classList.remove('hidden');
+    if (container) container.innerHTML = `<div class="empty-state">⚠️ Access Restricted: ${escapeHTML(err.message)}</div>`;
+  }
+}
+
+function openAnnouncementModal() {
+  document.getElementById('announcement-modal')?.classList.remove('hidden');
+}
+
+async function submitAnnouncement(e) {
+  e.preventDefault();
+  const payload = {
+    clubName: document.getElementById('ca-club').value.trim(),
+    title: document.getElementById('ca-title').value.trim(),
+    content: document.getElementById('ca-content').value.trim()
+  };
+
+  try {
+    const res = await api('/clubs/announcements', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    showToast(res.message || 'Announcement posted!');
+    closeModal('announcement-modal');
+    loadAnnouncements();
+  } catch (err) {
+    showError('ca-error', err.message);
+  }
+}
+
+/* ════════════════════════════════
+   3. EVENTS & DIGITAL PASS WITH QR
+════════════════════════════════ */
+async function loadEvents() {
+  const container = document.getElementById('events-feed-content');
+  const category = document.getElementById('ev-category')?.value || 'All';
+  if (container) container.innerHTML = '<div class="loading-state">Loading campus events feed...</div>';
+
+  try {
+    let url = '/events?';
+    if (category && category !== 'All') url += `category=${encodeURIComponent(category)}`;
+
+    const res = await api(url);
+    const events = res.data || [];
+
+    if (!events.length) {
+      container.innerHTML = '<div class="empty-state">No campus events published for this category.</div>';
+      return;
+    }
+
+    container.innerHTML = events.map(ev => buildEventCard(ev)).join('');
+  } catch (err) {
+    if (container) container.innerHTML = `<div class="empty-state">⚠️ ${escapeHTML(err.message)}</div>`;
+  }
+}
+
+function buildEventCard(ev) {
+  const cat = ev.category || 'Tech';
+  const isRsvped = ev.rsvped || (ev.rsvps && CURRENT_USER && ev.rsvps.includes(CURRENT_USER.email));
+  const rsvpCount = ev.rsvps ? ev.rsvps.length : 1;
+
+  const bannerHtml = ev.bannerUrl
+    ? `<img class="event-banner" src="${escapeHTML(ev.bannerUrl)}" alt="${escapeHTML(ev.title)}" loading="lazy" onerror="this.outerHTML='<div class=event-banner-placeholder>🎟️</div>'" />`
+    : `<div class="event-banner-placeholder">🎟️</div>`;
+
+  return `
+    <div class="event-card">
+      ${bannerHtml}
+      <div class="event-body">
+        <span class="event-cat ${catClass(cat)}">${escapeHTML(cat)}</span>
+        <div class="event-title">${escapeHTML(ev.title)}</div>
+        <div class="event-meta">
+          <span>📅 Date: <strong>${escapeHTML(ev.date)}</strong></span>
+          <span>🕐 Time: ${escapeHTML(ev.time)}</span>
+          <span>📍 Venue: ${escapeHTML(ev.venue)}</span>
+          <span>🏛 Organizer: ${escapeHTML(ev.organizer)}</span>
+        </div>
+        <div style="font-size:.78rem; color:var(--text-secondary); margin-top:4px;">
+          ${escapeHTML(ev.description)}
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+          <button class="rsvp-btn ${isRsvped ? 'rsvp-active' : ''}" onclick="toggleRSVP(this, '${ev.id || ev._id}')">
+            ${isRsvped ? `✓ RSVPed (${rsvpCount})` : `🎯 RSVP Now (${rsvpCount})`}
+          </button>
+          ${isRsvped ? `<button class="pass-view-btn" onclick="fetchAndShowPass('${ev.id || ev._id}')">🎫 View QR Entry Pass</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function toggleRSVP(btn, eventId) {
+  try {
+    const res = await api(`/events/${eventId}/rsvp`, { method: 'POST' });
+    const isNow = res.isRsvpd;
+    const count = res.rsvpsCount || 1;
+    btn.classList.toggle('rsvp-active', isNow);
+    btn.textContent = isNow ? `✓ RSVPed (${count})` : `🎯 RSVP Now (${count})`;
+    showToast(res.message || (isNow ? 'RSVP confirmed! Digital Entry Pass generated.' : 'RSVP cancelled.'));
+
+    if (isNow && res.pass) {
+      openEventPassModal(res.pass);
+    }
+    loadEvents();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function fetchAndShowPass(eventId) {
+  try {
+    const res = await api(`/events/${eventId}/pass`);
+    if (res.pass) openEventPassModal(res.pass);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+function openEventPassModal(pass) {
+  if (!pass) return;
+  document.getElementById('pass-qr-img').src = pass.qrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pass.ticketId)}`;
+  document.getElementById('pass-ticket-id').textContent = pass.ticketId;
+  document.getElementById('pass-event-title').textContent = pass.eventTitle;
+  document.getElementById('pass-event-time').textContent = `${pass.date} | ${pass.time}`;
+  document.getElementById('pass-event-venue').textContent = pass.venue;
+  document.getElementById('pass-student-name').textContent = pass.studentName;
+  document.getElementById('pass-student-email').textContent = pass.email;
+  document.getElementById('pass-student-dept').textContent = pass.department;
+  document.getElementById('pass-student-year').textContent = pass.year;
+
+  document.getElementById('event-pass-modal')?.classList.remove('hidden');
+}
+
+function openCreateEventModal() {
+  document.getElementById('create-event-modal')?.classList.remove('hidden');
+}
+
+async function submitCreateEvent(e) {
+  e.preventDefault();
+  const payload = {
+    title: document.getElementById('ce-title').value.trim(),
+    category: document.getElementById('ce-category').value,
+    organizer: document.getElementById('ce-organizer').value.trim(),
+    date: document.getElementById('ce-date').value,
+    time: document.getElementById('ce-time').value.trim(),
+    venue: document.getElementById('ce-venue').value.trim(),
+    description: document.getElementById('ce-desc').value.trim(),
+    bannerUrl: document.getElementById('ce-banner').value.trim()
+  };
+
+  try {
+    const res = await api('/events', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    showToast(res.message || 'Event published successfully!');
+    closeModal('create-event-modal');
+    loadEvents();
+  } catch (err) {
+    showError('ce-error', err.message);
+  }
+}
+
+/* ════════════════════════════════
+   4. CANTEEN MODULE
 ════════════════════════════════ */
 async function loadCanteen() {
   const categoriesContainer = document.getElementById('canteen-categories-content');
-  const reviewsContainer = document.getElementById('canteen-reviews-content');
   if (categoriesContainer) categoriesContainer.innerHTML = '<div class="loading-state">Fetching canteen menu & food courts...</div>';
 
   try {
     canteenRawData = await api('/canteen');
     
-    // Update strip
     if (canteenRawData.rushGauge) {
       document.getElementById('canteen-rush-gauge').textContent = canteenRawData.rushGauge;
     }
@@ -388,12 +751,10 @@ function renderCanteenMenu() {
   categories.forEach(cat => {
     let items = cat.items || [];
     
-    // Filter by court
     if (selectedCanteenCourt !== 'All') {
       items = items.filter(i => (i.availableAt || '').includes(selectedCanteenCourt));
     }
 
-    // Filter by search query
     if (searchQuery) {
       items = items.filter(i => 
         (i.name || '').toLowerCase().includes(searchQuery) || 
@@ -503,244 +864,6 @@ async function submitCanteenRating(e) {
     loadCanteen();
   } catch (err) {
     showError('cr-error', err.message);
-  }
-}
-
-/* ════════════════════════════════
-   3. CLUBS MODULE
-════════════════════════════════ */
-const clubEmojis = {
-  'Coding Club REC': '💻',
-  'Rotaract Club REC': '🤝',
-  'IEEE REC Student Chapter': '⚡',
-  'Entrepreneurship Development Cell (EDC)': '🚀',
-  'Fine Arts & Music Club REC': '🎨'
-};
-
-async function loadClubs() {
-  const container = document.getElementById('clubs-directory-content');
-  if (container) container.innerHTML = '<div class="loading-state">Loading registered campus clubs...</div>';
-
-  try {
-    const res = await api('/clubs');
-    const clubs = res.data || [];
-    renderClubsDirectory(clubs);
-    loadAnnouncements();
-  } catch (err) {
-    if (container) container.innerHTML = `<div class="empty-state">⚠️ ${escapeHTML(err.message)}</div>`;
-  }
-}
-
-function renderClubsDirectory(clubs) {
-  const container = document.getElementById('clubs-directory-content');
-  if (!container) return;
-
-  const joinedList = CURRENT_USER?.clubsJoined || [];
-
-  container.innerHTML = clubs.map(club => {
-    const isJoined = joinedList.some(c => c.toLowerCase() === club.name.toLowerCase() || c.toLowerCase() === club.tag.toLowerCase());
-    const emoji = clubEmojis[club.name] || '🚀';
-
-    return `
-      <div class="club-card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div class="club-icon">${emoji}</div>
-          <span class="banner-tag">${escapeHTML(club.category)}</span>
-        </div>
-        <div class="club-name">${escapeHTML(club.name)}</div>
-        <div class="club-desc">${escapeHTML(club.description)}</div>
-        <div style="font-size:.78rem; color:var(--text-secondary);">
-          👤 Lead: <strong>${escapeHTML(club.leadName)}</strong> • 👥 ${club.membersCount || 100}+ Members
-        </div>
-        <button class="join-btn ${isJoined ? 'joined' : ''}" onclick="joinClub(this, '${escapeHTML(club.name)}')">
-          ${isJoined ? '✓ Joined Member' : '🚀 Apply / Join Club'}
-        </button>
-      </div>
-    `;
-  }).join('');
-}
-
-async function joinClub(btn, clubName) {
-  try {
-    const res = await api('/clubs/join', {
-      method: 'POST',
-      body: JSON.stringify({ clubName })
-    });
-    showToast(res.message || `Joined ${clubName}!`);
-    if (CURRENT_USER) {
-      CURRENT_USER.clubsJoined = res.clubsJoined || [...(CURRENT_USER.clubsJoined || []), clubName];
-      CURRENT_USER.isClubMember = true;
-      localStorage.setItem('rec_user', JSON.stringify(CURRENT_USER));
-    }
-    btn.textContent = '✓ Joined Member';
-    btn.classList.add('joined');
-    loadClubs();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-}
-
-async function loadAnnouncements() {
-  const container = document.getElementById('announcements-content');
-  const gatedMsg = document.getElementById('announcements-gated-msg');
-  const tag = document.getElementById('ann-tag-filter')?.value || 'All';
-  const search = document.getElementById('ann-search')?.value?.trim() || '';
-
-  if (container) container.innerHTML = '<div class="loading-state">Loading announcements feed...</div>';
-
-  try {
-    let url = '/clubs/announcements?';
-    if (tag && tag !== 'All') url += `tag=${encodeURIComponent(tag)}&`;
-    if (search) url += `search=${encodeURIComponent(search)}&`;
-
-    const res = await api(url);
-    if (gatedMsg) gatedMsg.classList.add('hidden');
-
-    const items = res.data || [];
-    if (!items.length) {
-      container.innerHTML = '<div class="empty-state">No announcements posted for this filter.</div>';
-      return;
-    }
-
-    container.innerHTML = items.map(a => `
-      <div class="announcement-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="announcement-club">📣 ${escapeHTML(a.clubName)}</div>
-          <span class="announcement-time">${escapeHTML(a.date || '')} (${timeAgo(a.createdAt)})</span>
-        </div>
-        <div class="announcement-title">${escapeHTML(a.title)}</div>
-        <div class="announcement-text">${escapeHTML(a.content)}</div>
-      </div>
-    `).join('');
-  } catch (err) {
-    if (gatedMsg) gatedMsg.classList.remove('hidden');
-    if (container) container.innerHTML = `<div class="empty-state">⚠️ Access Restricted: ${escapeHTML(err.message)}</div>`;
-  }
-}
-
-function openAnnouncementModal() {
-  document.getElementById('announcement-modal')?.classList.remove('hidden');
-}
-
-async function submitAnnouncement(e) {
-  e.preventDefault();
-  const payload = {
-    clubName: document.getElementById('ca-club').value.trim(),
-    title: document.getElementById('ca-title').value.trim(),
-    content: document.getElementById('ca-content').value.trim()
-  };
-
-  try {
-    const res = await api('/clubs/announcements', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    showToast(res.message || 'Announcement posted!');
-    closeModal('announcement-modal');
-    loadAnnouncements();
-  } catch (err) {
-    showError('ca-error', err.message);
-  }
-}
-
-/* ════════════════════════════════
-   4. EVENTS MODULE
-════════════════════════════════ */
-async function loadEvents() {
-  const container = document.getElementById('events-feed-content');
-  const category = document.getElementById('ev-category')?.value || 'All';
-  if (container) container.innerHTML = '<div class="loading-state">Loading campus events feed...</div>';
-
-  try {
-    let url = '/events?';
-    if (category && category !== 'All') url += `category=${encodeURIComponent(category)}`;
-
-    const res = await api(url);
-    const events = res.data || [];
-
-    if (!events.length) {
-      container.innerHTML = '<div class="empty-state">No campus events published for this category.</div>';
-      return;
-    }
-
-    container.innerHTML = events.map(ev => buildEventCard(ev)).join('');
-  } catch (err) {
-    if (container) container.innerHTML = `<div class="empty-state">⚠️ ${escapeHTML(err.message)}</div>`;
-  }
-}
-
-function buildEventCard(ev) {
-  const cat = ev.category || 'Tech';
-  const isRsvped = ev.rsvped || (ev.rsvps && CURRENT_USER && ev.rsvps.includes(CURRENT_USER.email));
-  const rsvpCount = ev.rsvps ? ev.rsvps.length : 1;
-
-  const bannerHtml = ev.bannerUrl
-    ? `<img class="event-banner" src="${escapeHTML(ev.bannerUrl)}" alt="${escapeHTML(ev.title)}" loading="lazy" onerror="this.outerHTML='<div class=event-banner-placeholder>🎟️</div>'" />`
-    : `<div class="event-banner-placeholder">🎟️</div>`;
-
-  return `
-    <div class="event-card">
-      ${bannerHtml}
-      <div class="event-body">
-        <span class="event-cat ${catClass(cat)}">${escapeHTML(cat)}</span>
-        <div class="event-title">${escapeHTML(ev.title)}</div>
-        <div class="event-meta">
-          <span>📅 Date: <strong>${escapeHTML(ev.date)}</strong></span>
-          <span>🕐 Time: ${escapeHTML(ev.time)}</span>
-          <span>📍 Venue: ${escapeHTML(ev.venue)}</span>
-          <span>🏛 Organizer: ${escapeHTML(ev.organizer)}</span>
-        </div>
-        <div style="font-size:.78rem; color:var(--text-secondary); margin-top:4px;">
-          ${escapeHTML(ev.description)}
-        </div>
-        <button class="rsvp-btn ${isRsvped ? 'rsvp-active' : ''}" onclick="toggleRSVP(this, '${ev.id || ev._id}')">
-          ${isRsvped ? `✓ RSVPed (${rsvpCount})` : `🎯 RSVP Now (${rsvpCount})`}
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-async function toggleRSVP(btn, eventId) {
-  try {
-    const res = await api(`/events/${eventId}/rsvp`, { method: 'POST' });
-    const isNow = res.isRsvpd;
-    const count = res.rsvpsCount || 1;
-    btn.classList.toggle('rsvp-active', isNow);
-    btn.textContent = isNow ? `✓ RSVPed (${count})` : `🎯 RSVP Now (${count})`;
-    showToast(res.message || (isNow ? 'RSVP confirmed!' : 'RSVP removed'));
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-}
-
-function openCreateEventModal() {
-  document.getElementById('create-event-modal')?.classList.remove('hidden');
-}
-
-async function submitCreateEvent(e) {
-  e.preventDefault();
-  const payload = {
-    title: document.getElementById('ce-title').value.trim(),
-    category: document.getElementById('ce-category').value,
-    organizer: document.getElementById('ce-organizer').value.trim(),
-    date: document.getElementById('ce-date').value,
-    time: document.getElementById('ce-time').value.trim(),
-    venue: document.getElementById('ce-venue').value.trim(),
-    description: document.getElementById('ce-desc').value.trim(),
-    bannerUrl: document.getElementById('ce-banner').value.trim()
-  };
-
-  try {
-    const res = await api('/events', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    showToast(res.message || 'Event published successfully!');
-    closeModal('create-event-modal');
-    loadEvents();
-  } catch (err) {
-    showError('ce-error', err.message);
   }
 }
 
@@ -921,7 +1044,6 @@ function selectMessDay(dayName, btn) {
 
 async function loadMess() {
   const container = document.getElementById('mess-content');
-  const reviewsContainer = document.getElementById('mess-reviews-content');
 
   if (container) container.innerHTML = '<div class="loading-state">Loading weekly hostel menu...</div>';
 
@@ -1086,7 +1208,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const todayName = days[new Date().getDay()];
   selectedMessDayName = todayName === 'Sunday' ? 'Sunday' : todayName;
 
-  // Highlight current day button in mess
   const dayBtns = document.querySelectorAll('#mess-day-selector .day-btn');
   dayBtns.forEach(b => {
     if (b.textContent.trim().toLowerCase() === selectedMessDayName.substring(0, 3).toLowerCase()) {

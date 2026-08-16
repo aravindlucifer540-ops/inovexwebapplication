@@ -56,18 +56,18 @@
         </div>
 
         <div class="demo-accounts-box">
-          <div class="demo-title">⚡ Quick Sign-In Persona Accounts (Password: <code>Password@123</code>):</div>
+          <div class="demo-title">⚡ Quick Persona Sign-In (Password: <code>Password@123</code>):</div>
           <div class="demo-chips">
             <button type="button" class="demo-chip" onclick="fillLogin('admin@rajalakshmi.edu.in')">👑 Admin</button>
-            <button type="button" class="demo-chip" onclick="fillLogin('hod.cse@rajalakshmi.edu.in')">👨‍🏫 HOD Staff</button>
             <button type="button" class="demo-chip" onclick="fillLogin('lead.coding@rajalakshmi.edu.in')">🚀 Club Lead</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('hod.cse@rajalakshmi.edu.in')">👨‍🏫 HOD Staff</button>
             <button type="button" class="demo-chip" onclick="fillLogin('hostel.student1@rajalakshmi.edu.in')">🍲 Hosteller</button>
-            <button type="button" class="demo-chip" onclick="fillLogin('student.dayscholar@rajalakshmi.edu.in')">🚌 Day Scholar</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('student.dayscholar@rajalakshmi.edu.in')">🚌 Student</button>
           </div>
         </div>
 
         <button type="submit" class="btn-primary" id="login-btn">
-          <span class="btn-text">Sign In to Campus Hub</span>
+          <span class="btn-text">Sign In to Campus Portal</span>
         </button>
         <div class="auth-error hidden" id="login-error"></div>
       </form>
@@ -163,14 +163,14 @@
         <a href="#" class="nav-item active" data-page="home" onclick="navigate('home', this)">
           <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
         </a>
-        <a href="#" class="nav-item" data-page="canteen" onclick="navigate('canteen', this)">
-          <span class="nav-icon">🍔</span><span class="nav-label">Canteen & Food Court</span>
-        </a>
         <a href="#" class="nav-item" data-page="clubs" onclick="navigate('clubs', this)">
-          <span class="nav-icon">🚀</span><span class="nav-label">Clubs & Boards</span>
+          <span class="nav-icon">🚀</span><span class="nav-label">Clubs & Approvals</span>
         </a>
         <a href="#" class="nav-item" data-page="events" onclick="navigate('events', this)">
-          <span class="nav-icon">🎟️</span><span class="nav-label">Campus Events</span>
+          <span class="nav-icon">🎟️</span><span class="nav-label">Events & Passes</span>
+        </a>
+        <a href="#" class="nav-item" data-page="canteen" onclick="navigate('canteen', this)">
+          <span class="nav-icon">🍔</span><span class="nav-label">Canteen & Food Court</span>
         </a>
         <a href="#" class="nav-item" data-page="timetable" onclick="navigate('timetable', this)">
           <span class="nav-icon">📅</span><span class="nav-label">Timetable & Rooms</span>
@@ -203,9 +203,12 @@
         <button class="menu-toggle" onclick="toggleSidebar()" id="menu-btn" aria-label="Toggle menu">☰</button>
         <div class="topbar-search">
           <span>🔎</span>
-          <input type="text" placeholder="Search events, canteen items, clubs..." id="global-search" />
+          <input type="text" placeholder="Search events, canteen, clubs..." id="global-search" />
         </div>
         <div class="topbar-right">
+          <button class="btn-sm hidden" id="topbar-lead-apps-btn" onclick="openClubAppsModal()" style="background:rgba(236,72,153,.15);color:var(--pink);border-color:rgba(236,72,153,.3)">
+            📥 Lead Approvals <span id="lead-pending-count" class="badge-count">0</span>
+          </button>
           <div class="user-badge" id="role-pill">Student</div>
           <div class="topbar-avatar" id="topbar-avatar" onclick="openProfileModal()" title="View Profile">U</div>
         </div>
@@ -219,7 +222,7 @@
           <div class="page-header">
             <div>
               <h2 class="page-title">Welcome, <span id="greeting-name">Student</span> 👋</h2>
-              <p class="page-desc">Rajalakshmi Engineering College — Official Student & Staff Portal</p>
+              <p class="page-desc">Rajalakshmi Engineering College — Student & Staff Portal</p>
             </div>
             <div class="date-badge" id="today-date"></div>
           </div>
@@ -227,14 +230,6 @@
           <!-- Stats Grid -->
           <div class="stats-row">
             <div class="stat-card" style="--accent:#6366f1">
-              <div class="stat-icon">🍔</div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-canteen-rush">—</div>
-                <div class="stat-label">Canteen Rush Level</div>
-              </div>
-              <div class="stat-glow"></div>
-            </div>
-            <div class="stat-card" style="--accent:#ec4899">
               <div class="stat-icon">🎟️</div>
               <div class="stat-info">
                 <div class="stat-value" id="stat-events-count">—</div>
@@ -242,11 +237,19 @@
               </div>
               <div class="stat-glow"></div>
             </div>
-            <div class="stat-card" style="--accent:#10b981">
+            <div class="stat-card" style="--accent:#ec4899">
               <div class="stat-icon">🚀</div>
               <div class="stat-info">
                 <div class="stat-value" id="stat-clubs-count">5</div>
-                <div class="stat-label">Active Campus Clubs</div>
+                <div class="stat-label">Campus Clubs</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card" style="--accent:#10b981">
+              <div class="stat-icon">🍔</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-canteen-rush">—</div>
+                <div class="stat-label">Canteen Rush Level</div>
               </div>
               <div class="stat-glow"></div>
             </div>
@@ -279,14 +282,14 @@
             <h3>Quick Access</h3>
           </div>
           <div class="quick-actions">
-            <button class="qa-btn" onclick="navigate('canteen', document.querySelector('[data-page=canteen]'))">
-              <span>🍔</span> Canteen Menu & Rate Food
+            <button class="qa-btn" onclick="navigate('events', document.querySelector('[data-page=events]'))">
+              <span>🎟️</span> Events & Entry Passes
             </button>
             <button class="qa-btn" onclick="navigate('clubs', document.querySelector('[data-page=clubs]'))">
-              <span>🚀</span> Join Campus Clubs
+              <span>🚀</span> Apply to Join Clubs
             </button>
-            <button class="qa-btn" onclick="navigate('events', document.querySelector('[data-page=events]'))">
-              <span>🎟️</span> Campus Events & RSVP
+            <button class="qa-btn" onclick="navigate('canteen', document.querySelector('[data-page=canteen]'))">
+              <span>🍔</span> Canteen Menu & Ratings
             </button>
             <button class="qa-btn" onclick="navigate('timetable', document.querySelector('[data-page=timetable]'))">
               <span>🏫</span> Vacant Classrooms
@@ -310,59 +313,17 @@
           </div>
         </section>
 
-        <!-- 2. CANTEEN PAGE -->
-        <section class="page hidden" id="page-canteen">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">🍔 College Canteen & Food Court</h2>
-              <p class="page-desc">Live rush gauge, menu prices, and student food reviews (HUT CAFE & REC CAFE)</p>
-            </div>
-            <button class="btn-primary sm" onclick="openCanteenReviewModal()">⭐ Rate Food / Review</button>
-          </div>
-
-          <!-- Canteen Header Status Card -->
-          <div class="status-strip">
-            <div class="strip-item">
-              <span class="strip-label">Food Courts</span>
-              <span class="strip-value" id="canteen-courts-list">HUT CAFE, REC CAFE</span>
-            </div>
-            <div class="strip-item">
-              <span class="strip-label">Live Rush Level</span>
-              <span class="strip-value highlight" id="canteen-rush-gauge">Low Rush</span>
-            </div>
-          </div>
-
-          <!-- Food Court Filter Tabs -->
-          <div class="filter-bar">
-            <button class="filter-pill active" data-court="All" onclick="filterCanteenCourt('All', this)">All Food Courts</button>
-            <button class="filter-pill" data-court="HUT CAFE" onclick="filterCanteenCourt('HUT CAFE', this)">HUT CAFE</button>
-            <button class="filter-pill" data-court="REC CAFE" onclick="filterCanteenCourt('REC CAFE', this)">REC CAFE</button>
-            <input type="text" id="canteen-search" placeholder="Search dishes (e.g. Biryani, Coffee, Puff)..." oninput="renderCanteenMenu()" />
-          </div>
-
-          <!-- Menu Categories Container -->
-          <div class="canteen-container" id="canteen-categories-content">
-            <div class="loading-state">Loading canteen menu from REC database...</div>
-          </div>
-
-          <!-- Food Reviews Feed -->
-          <div class="section-header" style="margin-top: 2.5rem">
-            <h3>💬 Recent Student Reviews & Ratings</h3>
-            <button class="btn-sm" onclick="openCanteenReviewModal()">+ Write Review</button>
-          </div>
-          <div class="reviews-grid" id="canteen-reviews-content">
-            <div class="loading-state">Loading food reviews...</div>
-          </div>
-        </section>
-
-        <!-- 3. CLUBS PAGE -->
+        <!-- 2. CLUBS PAGE -->
         <section class="page hidden" id="page-clubs">
           <div class="page-header">
             <div>
-              <h2 class="page-title">🚀 Campus Clubs & Boards</h2>
-              <p class="page-desc">Join student societies, browse recruitment drives, and post official notices</p>
+              <h2 class="page-title">🚀 Campus Clubs & Lead Approvals</h2>
+              <p class="page-desc">Apply for club memberships (requires Coordinator Lead approval) & browse official notices</p>
             </div>
-            <button class="btn-primary sm hidden" id="post-announcement-btn" onclick="openAnnouncementModal()">+ Post Announcement</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-primary sm hidden" id="post-announcement-btn" onclick="openAnnouncementModal()">+ Post Notice</button>
+              <button class="btn-primary sm hidden" id="view-apps-btn" style="background:var(--pink);" onclick="openClubAppsModal()">📥 Review Applications</button>
+            </div>
           </div>
 
           <!-- Club Directory -->
@@ -399,12 +360,12 @@
           </div>
         </section>
 
-        <!-- 4. EVENTS PAGE -->
+        <!-- 3. EVENTS PAGE -->
         <section class="page hidden" id="page-events">
           <div class="page-header">
             <div>
-              <h2 class="page-title">🎟️ REC Campus Events</h2>
-              <p class="page-desc">Hackathons, workshops, symposiums & fests with 1-click RSVP</p>
+              <h2 class="page-title">🎟️ REC Campus Events & Entry Passes</h2>
+              <p class="page-desc">Hackathons, workshops & fests — 1-click RSVP generates your official QR Digital Entry Pass</p>
             </div>
             <button class="btn-primary sm hidden" id="create-event-btn" onclick="openCreateEventModal()">+ Publish Event</button>
           </div>
@@ -423,6 +384,47 @@
 
           <div class="events-grid" id="events-feed-content">
             <div class="loading-state">Loading campus events...</div>
+          </div>
+        </section>
+
+        <!-- 4. CANTEEN PAGE -->
+        <section class="page hidden" id="page-canteen">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🍔 College Canteen & Food Court</h2>
+              <p class="page-desc">Live rush gauge, menu prices, and student food reviews (HUT CAFE & REC CAFE)</p>
+            </div>
+            <button class="btn-primary sm" onclick="openCanteenReviewModal()">⭐ Rate Food / Review</button>
+          </div>
+
+          <div class="status-strip">
+            <div class="strip-item">
+              <span class="strip-label">Food Courts</span>
+              <span class="strip-value" id="canteen-courts-list">HUT CAFE, REC CAFE</span>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">Live Rush Level</span>
+              <span class="strip-value highlight" id="canteen-rush-gauge">Low Rush</span>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <button class="filter-pill active" data-court="All" onclick="filterCanteenCourt('All', this)">All Food Courts</button>
+            <button class="filter-pill" data-court="HUT CAFE" onclick="filterCanteenCourt('HUT CAFE', this)">HUT CAFE</button>
+            <button class="filter-pill" data-court="REC CAFE" onclick="filterCanteenCourt('REC CAFE', this)">REC CAFE</button>
+            <input type="text" id="canteen-search" placeholder="Search dishes (e.g. Biryani, Coffee, Puff)..." oninput="renderCanteenMenu()" />
+          </div>
+
+          <div class="canteen-container" id="canteen-categories-content">
+            <div class="loading-state">Loading canteen menu from REC database...</div>
+          </div>
+
+          <div class="section-header" style="margin-top: 2.5rem">
+            <h3>💬 Student Reviews & Ratings</h3>
+            <button class="btn-sm" onclick="openCanteenReviewModal()">+ Write Review</button>
+          </div>
+          <div class="reviews-grid" id="canteen-reviews-content">
+            <div class="loading-state">Loading food reviews...</div>
           </div>
         </section>
 
@@ -463,7 +465,6 @@
             <div class="loading-state">Loading class schedule...</div>
           </div>
 
-          <!-- Vacant Classrooms Finder Section -->
           <div class="section-header" style="margin-top: 2.5rem">
             <h3>🏫 Live Vacant Classroom Finder</h3>
             <button class="btn-sm" onclick="loadFreeRooms()">🔄 Scan Campus</button>
@@ -516,7 +517,6 @@
             <button class="btn-primary sm" id="rate-mess-btn" onclick="openMessReviewModal()">⭐ Rate Meal / Feedback</button>
           </div>
 
-          <!-- Day Selection Tabs -->
           <div class="day-selector" id="mess-day-selector">
             <button class="day-btn" onclick="selectMessDay('Monday', this)">Mon</button>
             <button class="day-btn" onclick="selectMessDay('Tuesday', this)">Tue</button>
@@ -531,7 +531,6 @@
             <div class="loading-state">Loading hostel menu...</div>
           </div>
 
-          <!-- Mess Feedback Feed -->
           <div class="section-header" style="margin-top: 2.5rem">
             <h3>💬 Caterer Reviews & Meal Feedback</h3>
             <button class="btn-sm" onclick="openMessReviewModal()">+ Submit Feedback</button>
@@ -549,7 +548,61 @@
        MODALS
   ══════════════════════════════════ -->
 
-  <!-- Modal 1: Report Lost/Found Item -->
+  <!-- Modal 1: Digital Entry Pass & QR Code Ticket -->
+  <div class="modal-backdrop hidden" id="event-pass-modal">
+    <div class="modal pass-modal">
+      <div class="modal-header">
+        <h3>🎟️ Official Digital Event Entry Pass</h3>
+        <button class="modal-close" onclick="closeModal('event-pass-modal')">✕</button>
+      </div>
+
+      <div class="event-pass-card" id="event-pass-card">
+        <div class="pass-header-badge">OFFICIAL REC EVENT ENTRY PASS</div>
+        <div class="pass-body">
+          <div class="pass-qr-wrap">
+            <img id="pass-qr-img" src="" alt="QR Code Entry Pass" />
+            <div class="pass-serial" id="pass-ticket-id">REC-TKT-XXXXXX</div>
+          </div>
+          <div class="pass-details">
+            <h4 class="pass-event-title" id="pass-event-title">Event Title</h4>
+            <div class="pass-row"><span>📅 Date & Time:</span> <strong id="pass-event-time">Date | Time</strong></div>
+            <div class="pass-row"><span>📍 Venue:</span> <strong id="pass-event-venue">Venue</strong></div>
+            <div class="pass-divider"></div>
+            <div class="pass-row"><span>👤 Student Name:</span> <strong id="pass-student-name">Student Name</strong></div>
+            <div class="pass-row"><span>✉ Campus Email:</span> <strong id="pass-student-email">Email</strong></div>
+            <div class="pass-row"><span>🏛 Department:</span> <strong id="pass-student-dept">Dept</strong></div>
+            <div class="pass-row"><span>📆 Academic Year:</span> <strong id="pass-student-year">Year</strong></div>
+          </div>
+        </div>
+        <div class="pass-footer">
+          ⚡ Show this QR pass at campus venue entry for instant check-in authentication.
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:1.25rem; gap:10px;">
+        <button class="btn-primary sm" onclick="window.print()">🖨 Print / Save Pass</button>
+        <button class="btn-sm" onclick="closeModal('event-pass-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Club Coordinator Member Approvals -->
+  <div class="modal-backdrop hidden" id="club-apps-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📥 Club Membership Applications (Lead Approvals)</h3>
+        <button class="modal-close" onclick="closeModal('club-apps-modal')">✕</button>
+      </div>
+      <div style="font-size:.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+        Review student membership applications for your club. Click approve to grant full club access.
+      </div>
+      <div class="apps-list" id="club-apps-list">
+        <div class="loading-state">Loading pending applications...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Report Lost/Found Item -->
   <div class="modal-backdrop hidden" id="report-modal">
     <div class="modal">
       <div class="modal-header">
@@ -610,7 +663,7 @@
     </div>
   </div>
 
-  <!-- Modal 2: Rate Canteen Dish -->
+  <!-- Modal 4: Rate Canteen Dish -->
   <div class="modal-backdrop hidden" id="canteen-review-modal">
     <div class="modal">
       <div class="modal-header">
@@ -656,7 +709,7 @@
     </div>
   </div>
 
-  <!-- Modal 3: Rate Mess Meal -->
+  <!-- Modal 5: Rate Mess Meal -->
   <div class="modal-backdrop hidden" id="mess-review-modal">
     <div class="modal">
       <div class="modal-header">
@@ -718,7 +771,7 @@
     </div>
   </div>
 
-  <!-- Modal 4: Publish Event (Restricted to Leads/Staff/Admin) -->
+  <!-- Modal 6: Publish Event (Restricted to Leads/Staff/Admin) -->
   <div class="modal-backdrop hidden" id="create-event-modal">
     <div class="modal">
       <div class="modal-header">
@@ -790,7 +843,7 @@
     </div>
   </div>
 
-  <!-- Modal 5: Post Club Announcement -->
+  <!-- Modal 7: Post Club Announcement -->
   <div class="modal-backdrop hidden" id="announcement-modal">
     <div class="modal">
       <div class="modal-header">
@@ -822,7 +875,7 @@
     </div>
   </div>
 
-  <!-- Modal 6: Edit User Profile -->
+  <!-- Modal 8: Edit User Profile -->
   <div class="modal-backdrop hidden" id="profile-modal">
     <div class="modal">
       <div class="modal-header">
