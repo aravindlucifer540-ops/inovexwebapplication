@@ -1,27 +1,10 @@
 {
-  "CAMPUS_LOCATIONS": [
-    "HUT CAFE",
-    "REC CAFE",
-    "J Block",
-    "I Block",
-    "A Block",
-    "B block",
-    "K block",
-    "Indoor auditorium"
-  ],
-  "HOSTEL_NAMES": [
-    "Pearl Hostel",
-    "Ruby Hostel",
-    "Emerald Hostel",
-    "Sapphire Hostel",
-    "Diamond Hostel"
-  ],
   "users": [
     {
       "id": "usr-100",
       "name": "Dr. K. Ramaswamy",
       "email": "admin@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "Administration",
       "year": "Staff",
@@ -42,13 +25,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Dr.%20K.%20Ramaswamy",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.621Z"
     },
     {
       "id": "usr-101",
       "name": "Dr. V. Murali",
       "email": "hod.cse@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "CSE",
       "year": "Staff",
@@ -66,13 +49,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Dr.%20V.%20Murali",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-102",
       "name": "Prof. S. Nithya",
       "email": "staff.ece@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Female",
       "department": "ECE",
       "year": "Staff",
@@ -89,13 +72,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Prof.%20S.%20Nithya",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-103",
       "name": "Aditya Verma",
       "email": "lead.coding@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "CSE",
       "year": "3rd Year",
@@ -112,13 +95,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Aditya%20Verma",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-104",
       "name": "Priya Sundaram",
       "email": "lead.rotaract@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Female",
       "department": "IT",
       "year": "3rd Year",
@@ -136,13 +119,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya%20Sundaram",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-105",
       "name": "Karthik Raja",
       "email": "member.rotaract@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "ECE",
       "year": "2nd Year",
@@ -159,13 +142,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Karthik%20Raja",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-106",
       "name": "Ananya Krishnan",
       "email": "member.ieee@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Female",
       "department": "EEE",
       "year": "2nd Year",
@@ -182,13 +165,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya%20Krishnan",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-107",
       "name": "Rahul Sharma",
       "email": "hostel.student1@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "CSE",
       "year": "2nd Year",
@@ -203,13 +186,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul%20Sharma",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-108",
       "name": "Deepika R",
       "email": "hostel.student2@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Female",
       "department": "MECH",
       "year": "3rd Year",
@@ -224,13 +207,13 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Deepika%20R",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     },
     {
       "id": "usr-109",
       "name": "Vignesh Kumar",
       "email": "student.dayscholar@rajalakshmi.edu.in",
-      "passwordHash": "$2a$10$CrbW8WyMT6Abqr2Dtp.FRuhdBrhne/Z6yQGig6KEJw0iwQjDLVfyy",
+      "passwordHash": "$2a$10$bySNxeczac9VdZGzYqMhjO0PLnPfRUKJ/lFSA3GuBKiKXrin5CFym",
       "gender": "Male",
       "department": "IT",
       "year": "1st Year",
@@ -245,7 +228,7 @@
       "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Vignesh%20Kumar",
       "bio": "Official REC Campus Companion User",
       "phone": "+91 98765 43210",
-      "createdAt": "2026-08-16T05:47:18.164Z"
+      "createdAt": "2026-08-16T05:43:45.622Z"
     }
   ],
   "timetables": {

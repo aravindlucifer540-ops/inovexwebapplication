@@ -179,7 +179,7 @@ const lostFoundItems = [
     status: "found",
     location: "J Block Room 302 (Submitted to Security Desk)",
     description: "Found on 2nd bench after Period 4 Maths lecture. Handed over to J Block Security guard desk.",
-    imageUrl: "https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=500",
+    imageUrl: "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=600",
     contactName: "Prof. S. Nithya",
     contactPhone: "+91 94440 98765",
     contactEmail: "staff.ece@rajalakshmi.edu.in",
