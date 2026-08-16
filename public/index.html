@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>REC Campus Companion — Rajalakshmi Engineering College</title>
-  <meta name="description" content="Your all-in-one campus hub for timetables, events, mess menu, canteen, clubs and lost & found at Rajalakshmi Engineering College." />
+  <meta name="description" content="Official REC Campus Companion hub for timetables, events, hostel mess, food court canteen, student clubs, and lost & found." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -23,7 +23,6 @@
     </div>
 
     <div class="auth-card" id="auth-card">
-      <!-- Logo -->
       <div class="auth-logo">
         <div class="logo-icon">
           <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="url(#lg1)"/><path d="M12 20l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs></svg>
@@ -34,7 +33,6 @@
         </div>
       </div>
 
-      <!-- Tab Switcher -->
       <div class="auth-tabs">
         <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
         <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
@@ -56,18 +54,35 @@
             <input id="login-password" type="password" placeholder="Password@123" required autocomplete="current-password" />
           </div>
         </div>
-        <div class="demo-hint">
-          <span>Demo:</span> <code>admin@rajalakshmi.edu.in</code> / <code>Password@123</code>
+
+        <div class="demo-accounts-box">
+          <div class="demo-title">⚡ Quick Sign-In Persona Accounts (Password: <code>Password@123</code>):</div>
+          <div class="demo-chips">
+            <button type="button" class="demo-chip" onclick="fillLogin('admin@rajalakshmi.edu.in')">👑 Admin</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('hod.cse@rajalakshmi.edu.in')">👨‍🏫 HOD Staff</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('lead.coding@rajalakshmi.edu.in')">🚀 Club Lead</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('hostel.student1@rajalakshmi.edu.in')">🍲 Hosteller</button>
+            <button type="button" class="demo-chip" onclick="fillLogin('student.dayscholar@rajalakshmi.edu.in')">🚌 Day Scholar</button>
+          </div>
         </div>
+
         <button type="submit" class="btn-primary" id="login-btn">
-          <span class="btn-text">Sign In</span>
-          <span class="btn-loader hidden" id="login-loader">⟳</span>
+          <span class="btn-text">Sign In to Campus Hub</span>
         </button>
         <div class="auth-error hidden" id="login-error"></div>
       </form>
 
       <!-- Register Form -->
       <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="reg-email">Official Campus Email (@rajalakshmi.edu.in)</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input id="reg-email" type="email" placeholder="karthik.r@rajalakshmi.edu.in" required onblur="checkRegistryEmail()" />
+          </div>
+          <div id="registry-badge" class="registry-badge hidden"></div>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label for="reg-name">Full Name</label>
@@ -81,41 +96,41 @@
             <div class="input-wrap">
               <span class="input-icon">🏛</span>
               <select id="reg-dept" required>
-                <option value="">Select Dept</option>
-                <option>CSE</option><option>ECE</option><option>IT</option>
-                <option>MECH</option><option>EEE</option><option>AIDS</option><option>BIOTECH</option>
+                <option value="">Department</option>
+                <option value="CSE">CSE</option><option value="ECE">ECE</option>
+                <option value="IT">IT</option><option value="MECH">MECH</option>
+                <option value="EEE">EEE</option><option value="AIDS">AIDS</option>
+                <option value="BIOTECH">BIOTECH</option>
               </select>
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <label for="reg-email">Campus Email</label>
-          <div class="input-wrap">
-            <span class="input-icon">✉</span>
-            <input id="reg-email" type="email" placeholder="you@rajalakshmi.edu.in" required />
-          </div>
-        </div>
+
         <div class="form-group">
           <label for="reg-password">Password</label>
           <div class="input-wrap">
             <span class="input-icon">🔒</span>
-            <input id="reg-password" type="password" placeholder="Min 8 chars" required />
+            <input id="reg-password" type="password" placeholder="Minimum 6 characters" required minlength="6" />
           </div>
         </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="reg-year">Year</label>
+            <label for="reg-year">Academic Year</label>
             <div class="input-wrap">
               <span class="input-icon">📆</span>
               <select id="reg-year" required>
                 <option value="">Year</option>
-                <option>1st Year</option><option>2nd Year</option>
-                <option>3rd Year</option><option>4th Year</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+                <option value="Staff">Staff</option>
               </select>
             </div>
           </div>
           <div class="form-group">
-            <label>Residence</label>
+            <label>Residence Type</label>
             <div class="toggle-wrap">
               <button type="button" class="toggle-btn active" id="day-btn" onclick="setHostel(false)">Day Scholar</button>
               <button type="button" class="toggle-btn" id="host-btn" onclick="setHostel(true)">Hosteller</button>
@@ -123,14 +138,15 @@
           </div>
         </div>
         <input type="hidden" id="reg-hosteller" value="false" />
-        <button type="submit" class="btn-primary" id="reg-btn">Create Account</button>
+
+        <button type="submit" class="btn-primary" id="reg-btn">Create Official Account</button>
         <div class="auth-error hidden" id="reg-error"></div>
       </form>
     </div>
   </div>
 
   <!-- ══════════════════════════════════
-       DASHBOARD
+       MAIN DASHBOARD
   ══════════════════════════════════ -->
   <div id="dashboard" class="dashboard hidden">
 
@@ -140,36 +156,37 @@
         <div class="logo-icon sm">
           <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="url(#lg2)"/><path d="M12 20l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs></svg>
         </div>
-        <span class="sidebar-brand">REC</span>
+        <span class="sidebar-brand">REC Companion</span>
       </div>
 
       <nav class="sidebar-nav">
         <a href="#" class="nav-item active" data-page="home" onclick="navigate('home', this)">
           <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
         </a>
-        <a href="#" class="nav-item" data-page="timetable" onclick="navigate('timetable', this)">
-          <span class="nav-icon">📅</span><span class="nav-label">Timetable</span>
+        <a href="#" class="nav-item" data-page="canteen" onclick="navigate('canteen', this)">
+          <span class="nav-icon">🍔</span><span class="nav-label">Canteen & Food Court</span>
+        </a>
+        <a href="#" class="nav-item" data-page="clubs" onclick="navigate('clubs', this)">
+          <span class="nav-icon">🚀</span><span class="nav-label">Clubs & Boards</span>
         </a>
         <a href="#" class="nav-item" data-page="events" onclick="navigate('events', this)">
-          <span class="nav-icon">🎟️</span><span class="nav-label">Events</span>
+          <span class="nav-icon">🎟️</span><span class="nav-label">Campus Events</span>
+        </a>
+        <a href="#" class="nav-item" data-page="timetable" onclick="navigate('timetable', this)">
+          <span class="nav-icon">📅</span><span class="nav-label">Timetable & Rooms</span>
         </a>
         <a href="#" class="nav-item" data-page="lostfound" onclick="navigate('lostfound', this)">
           <span class="nav-icon">🔍</span><span class="nav-label">Lost & Found</span>
         </a>
-        <a href="#" class="nav-item" data-page="clubs" onclick="navigate('clubs', this)">
-          <span class="nav-icon">🚀</span><span class="nav-label">Clubs</span>
-        </a>
         <a href="#" class="nav-item" data-page="mess" onclick="navigate('mess', this)">
-          <span class="nav-icon">🍲</span><span class="nav-label">Mess</span>
-        </a>
-        <a href="#" class="nav-item" data-page="canteen" onclick="navigate('canteen', this)">
-          <span class="nav-icon">🍔</span><span class="nav-label">Canteen</span>
+          <span class="nav-icon">🍲</span><span class="nav-label">Hostel Mess</span>
         </a>
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="user-chip" id="user-chip">
-          <div class="user-avatar" id="sidebar-avatar">A</div>
+        <div class="user-chip" id="user-chip" onclick="openProfileModal()">
+          <img class="user-avatar-img" id="sidebar-avatar-img" src="" alt="User Avatar" onerror="this.style.display='none'; document.getElementById('sidebar-avatar-txt').style.display='flex';" />
+          <div class="user-avatar" id="sidebar-avatar-txt" style="display:none">U</div>
           <div class="user-info">
             <div class="user-name" id="sidebar-name">User</div>
             <div class="user-role" id="sidebar-role">student</div>
@@ -179,235 +196,348 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content Body -->
     <main class="main-content">
       <!-- Top Bar -->
       <header class="topbar">
         <button class="menu-toggle" onclick="toggleSidebar()" id="menu-btn" aria-label="Toggle menu">☰</button>
         <div class="topbar-search">
           <span>🔎</span>
-          <input type="text" placeholder="Search campus..." id="global-search" />
+          <input type="text" placeholder="Search events, canteen items, clubs..." id="global-search" />
         </div>
         <div class="topbar-right">
-          <div class="notif-btn" title="Notifications">🔔<span class="notif-badge">3</span></div>
-          <div class="topbar-avatar" id="topbar-avatar">A</div>
+          <div class="user-badge" id="role-pill">Student</div>
+          <div class="topbar-avatar" id="topbar-avatar" onclick="openProfileModal()" title="View Profile">U</div>
         </div>
       </header>
 
-      <!-- Pages -->
+      <!-- Pages Container -->
       <div class="pages-container">
 
-        <!-- HOME PAGE -->
+        <!-- 1. HOME PAGE -->
         <section class="page active" id="page-home">
           <div class="page-header">
             <div>
-              <h2 class="page-title">Welcome back, <span id="greeting-name">student</span> 👋</h2>
-              <p class="page-desc">Here's your campus at a glance</p>
+              <h2 class="page-title">Welcome, <span id="greeting-name">Student</span> 👋</h2>
+              <p class="page-desc">Rajalakshmi Engineering College — Official Student & Staff Portal</p>
             </div>
             <div class="date-badge" id="today-date"></div>
           </div>
 
-          <!-- Stats Row -->
+          <!-- Stats Grid -->
           <div class="stats-row">
             <div class="stat-card" style="--accent:#6366f1">
-              <div class="stat-icon">📅</div>
+              <div class="stat-icon">🍔</div>
               <div class="stat-info">
-                <div class="stat-value" id="stat-classes">—</div>
-                <div class="stat-label">Classes Today</div>
+                <div class="stat-value" id="stat-canteen-rush">—</div>
+                <div class="stat-label">Canteen Rush Level</div>
               </div>
               <div class="stat-glow"></div>
             </div>
             <div class="stat-card" style="--accent:#ec4899">
               <div class="stat-icon">🎟️</div>
               <div class="stat-info">
-                <div class="stat-value" id="stat-events">—</div>
+                <div class="stat-value" id="stat-events-count">—</div>
                 <div class="stat-label">Upcoming Events</div>
-              </div>
-              <div class="stat-glow"></div>
-            </div>
-            <div class="stat-card" style="--accent:#f59e0b">
-              <div class="stat-icon">🔍</div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-lost">—</div>
-                <div class="stat-label">Lost Items</div>
               </div>
               <div class="stat-glow"></div>
             </div>
             <div class="stat-card" style="--accent:#10b981">
               <div class="stat-icon">🚀</div>
               <div class="stat-info">
-                <div class="stat-value" id="stat-clubs">—</div>
-                <div class="stat-label">Active Clubs</div>
+                <div class="stat-value" id="stat-clubs-count">5</div>
+                <div class="stat-label">Active Campus Clubs</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card" style="--accent:#f59e0b">
+              <div class="stat-icon">🔍</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-lost-count">—</div>
+                <div class="stat-label">Lost Belongings</div>
               </div>
               <div class="stat-glow"></div>
             </div>
           </div>
 
-          <!-- Quick Actions -->
+          <!-- Profile Overview Banner -->
+          <div class="glass-banner" id="home-profile-banner">
+            <div class="banner-avatar">
+              <img id="home-banner-pfp" src="" alt="PFP" onerror="this.style.display='none'; document.getElementById('home-banner-initial').style.display='flex';" />
+              <div id="home-banner-initial" class="user-avatar lg" style="display:none">U</div>
+            </div>
+            <div class="banner-content">
+              <h3 id="home-banner-name">User Name</h3>
+              <p id="home-banner-details">Department & Role</p>
+              <div class="banner-tags" id="home-banner-tags"></div>
+            </div>
+            <button class="btn-sm" onclick="openProfileModal()">✏ Edit Profile</button>
+          </div>
+
+          <!-- Quick Action Buttons -->
           <div class="section-header">
-            <h3>Quick Actions</h3>
+            <h3>Quick Access</h3>
           </div>
           <div class="quick-actions">
-            <button class="qa-btn" onclick="navigate('timetable', document.querySelector('[data-page=timetable]'))">
-              <span>📅</span> View Timetable
+            <button class="qa-btn" onclick="navigate('canteen', document.querySelector('[data-page=canteen]'))">
+              <span>🍔</span> Canteen Menu & Rate Food
+            </button>
+            <button class="qa-btn" onclick="navigate('clubs', document.querySelector('[data-page=clubs]'))">
+              <span>🚀</span> Join Campus Clubs
             </button>
             <button class="qa-btn" onclick="navigate('events', document.querySelector('[data-page=events]'))">
-              <span>🎟️</span> Browse Events
+              <span>🎟️</span> Campus Events & RSVP
+            </button>
+            <button class="qa-btn" onclick="navigate('timetable', document.querySelector('[data-page=timetable]'))">
+              <span>🏫</span> Vacant Classrooms
             </button>
             <button class="qa-btn" onclick="navigate('lostfound', document.querySelector('[data-page=lostfound]'))">
-              <span>🔍</span> Lost & Found
+              <span>🔍</span> Report Lost Item
             </button>
-            <button class="qa-btn" onclick="navigate('canteen', document.querySelector('[data-page=canteen]'))">
-              <span>🍔</span> Canteen Menu
+            <button class="qa-btn" onclick="navigate('mess', document.querySelector('[data-page=mess]'))">
+              <span>🍲</span> Hostel Mess Menu
             </button>
           </div>
 
-          <!-- Recent Events Preview -->
+          <!-- Featured Events Preview -->
           <div class="section-header">
-            <h3>Recent Events</h3>
-            <a href="#" onclick="navigate('events', document.querySelector('[data-page=events]'))" class="see-all">See all →</a>
+            <h3>Featured Campus Events</h3>
+            <a href="#" onclick="navigate('events', document.querySelector('[data-page=events]'))" class="see-all">View All →</a>
           </div>
-          <div class="events-preview" id="home-events-preview">
+          <div class="events-grid" id="home-events-grid">
             <div class="skeleton-card"></div>
             <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
           </div>
         </section>
 
-        <!-- TIMETABLE PAGE -->
-        <section class="page hidden" id="page-timetable">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">📅 Timetable</h2>
-              <p class="page-desc">Your weekly class schedule</p>
-            </div>
-          </div>
-          <div class="filter-bar">
-            <select id="tt-dept" onchange="loadTimetable()">
-              <option value="CSE">CSE</option><option value="ECE">ECE</option>
-              <option value="IT">IT</option><option value="MECH">MECH</option>
-              <option value="EEE">EEE</option><option value="AIDS">AIDS</option>
-              <option value="BIOTECH">BIOTECH</option>
-            </select>
-            <select id="tt-year" onchange="loadTimetable()">
-              <option value="1">1st Year</option><option value="2" selected>2nd Year</option>
-              <option value="3">3rd Year</option><option value="4">4th Year</option>
-            </select>
-            <select id="tt-section" onchange="loadTimetable()">
-              <option>A</option><option>B</option><option>C</option>
-            </select>
-            <button class="btn-sm" onclick="loadTimetable()">🔄 Refresh</button>
-          </div>
-          <div class="timetable-container" id="timetable-content">
-            <div class="loading-state">Loading schedule...</div>
-          </div>
-          <div class="section-header" style="margin-top:2rem">
-            <h3>🏫 Free Rooms Right Now</h3>
-            <button class="btn-sm" onclick="loadFreeRooms()">Find Rooms</button>
-          </div>
-          <div class="free-rooms-grid" id="free-rooms-content">
-            <div class="empty-state">Click "Find Rooms" to discover vacant classrooms</div>
-          </div>
-        </section>
-
-        <!-- EVENTS PAGE -->
-        <section class="page hidden" id="page-events">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">🎟️ Campus Events</h2>
-              <p class="page-desc">Discover happenings around campus</p>
-            </div>
-          </div>
-          <div class="filter-bar">
-            <select id="ev-category" onchange="loadEvents()">
-              <option value="">All Categories</option>
-              <option>Tech</option><option>Cultural</option><option>Sports</option>
-              <option>Workshop</option><option>Seminar</option>
-            </select>
-            <button class="btn-sm" onclick="loadEvents()">🔄 Refresh</button>
-          </div>
-          <div class="events-grid" id="events-content">
-            <div class="loading-state">Loading events...</div>
-          </div>
-        </section>
-
-        <!-- LOST & FOUND PAGE -->
-        <section class="page hidden" id="page-lostfound">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">🔍 Lost & Found</h2>
-              <p class="page-desc">Report or find your lost belongings</p>
-            </div>
-            <button class="btn-primary sm" onclick="showReportModal()">+ Report Item</button>
-          </div>
-          <div class="filter-bar">
-            <select id="lf-status" onchange="loadLostFound()">
-              <option value="">All</option>
-              <option value="lost">Lost</option>
-              <option value="found">Found</option>
-            </select>
-            <select id="lf-category" onchange="loadLostFound()">
-              <option value="">All Categories</option>
-              <option>Electronics</option><option>Books</option>
-              <option>Accessories</option><option>ID Cards</option><option>Others</option>
-            </select>
-            <input type="text" id="lf-search" placeholder="Search items..." oninput="loadLostFound()" />
-          </div>
-          <div class="lf-grid" id="lf-content">
-            <div class="loading-state">Loading items...</div>
-          </div>
-        </section>
-
-        <!-- CLUBS PAGE -->
-        <section class="page hidden" id="page-clubs">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">🚀 Clubs & Societies</h2>
-              <p class="page-desc">Join, explore and stay connected</p>
-            </div>
-          </div>
-          <div class="clubs-grid" id="clubs-content">
-            <div class="loading-state">Loading clubs...</div>
-          </div>
-          <div class="section-header" style="margin-top:2rem">
-            <h3>📣 Club Announcements</h3>
-            <button class="btn-sm" onclick="loadAnnouncements()">Load Feed</button>
-          </div>
-          <div class="announcements-feed" id="announcements-content"></div>
-        </section>
-
-        <!-- MESS PAGE -->
-        <section class="page hidden" id="page-mess">
-          <div class="page-header">
-            <div>
-              <h2 class="page-title">🍲 Hostel Mess</h2>
-              <p class="page-desc">Weekly menu & meal ratings</p>
-            </div>
-          </div>
-          <div class="filter-bar">
-            <select id="mess-day" onchange="loadMess()">
-              <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
-              <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
-              <option value="Friday">Friday</option><option value="Saturday">Saturday</option>
-              <option value="Sunday">Sunday</option>
-            </select>
-            <button class="btn-sm" onclick="loadMess()">🔄 Load Menu</button>
-          </div>
-          <div class="mess-container" id="mess-content">
-            <div class="loading-state">Select a day to view the menu</div>
-          </div>
-        </section>
-
-        <!-- CANTEEN PAGE -->
+        <!-- 2. CANTEEN PAGE -->
         <section class="page hidden" id="page-canteen">
           <div class="page-header">
             <div>
-              <h2 class="page-title">🍔 College Canteen</h2>
-              <p class="page-desc">Menu, prices & live ratings</p>
+              <h2 class="page-title">🍔 College Canteen & Food Court</h2>
+              <p class="page-desc">Live rush gauge, menu prices, and student food reviews (HUT CAFE & REC CAFE)</p>
+            </div>
+            <button class="btn-primary sm" onclick="openCanteenReviewModal()">⭐ Rate Food / Review</button>
+          </div>
+
+          <!-- Canteen Header Status Card -->
+          <div class="status-strip">
+            <div class="strip-item">
+              <span class="strip-label">Food Courts</span>
+              <span class="strip-value" id="canteen-courts-list">HUT CAFE, REC CAFE</span>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">Live Rush Level</span>
+              <span class="strip-value highlight" id="canteen-rush-gauge">Low Rush</span>
             </div>
           </div>
-          <div class="canteen-container" id="canteen-content">
-            <div class="loading-state">Loading canteen data...</div>
+
+          <!-- Food Court Filter Tabs -->
+          <div class="filter-bar">
+            <button class="filter-pill active" data-court="All" onclick="filterCanteenCourt('All', this)">All Food Courts</button>
+            <button class="filter-pill" data-court="HUT CAFE" onclick="filterCanteenCourt('HUT CAFE', this)">HUT CAFE</button>
+            <button class="filter-pill" data-court="REC CAFE" onclick="filterCanteenCourt('REC CAFE', this)">REC CAFE</button>
+            <input type="text" id="canteen-search" placeholder="Search dishes (e.g. Biryani, Coffee, Puff)..." oninput="renderCanteenMenu()" />
+          </div>
+
+          <!-- Menu Categories Container -->
+          <div class="canteen-container" id="canteen-categories-content">
+            <div class="loading-state">Loading canteen menu from REC database...</div>
+          </div>
+
+          <!-- Food Reviews Feed -->
+          <div class="section-header" style="margin-top: 2.5rem">
+            <h3>💬 Recent Student Reviews & Ratings</h3>
+            <button class="btn-sm" onclick="openCanteenReviewModal()">+ Write Review</button>
+          </div>
+          <div class="reviews-grid" id="canteen-reviews-content">
+            <div class="loading-state">Loading food reviews...</div>
+          </div>
+        </section>
+
+        <!-- 3. CLUBS PAGE -->
+        <section class="page hidden" id="page-clubs">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🚀 Campus Clubs & Boards</h2>
+              <p class="page-desc">Join student societies, browse recruitment drives, and post official notices</p>
+            </div>
+            <button class="btn-primary sm hidden" id="post-announcement-btn" onclick="openAnnouncementModal()">+ Post Announcement</button>
+          </div>
+
+          <!-- Club Directory -->
+          <div class="section-header">
+            <h3>Registered REC Student Clubs</h3>
+          </div>
+          <div class="clubs-grid" id="clubs-directory-content">
+            <div class="loading-state">Loading clubs directory...</div>
+          </div>
+
+          <!-- Club Announcements Board -->
+          <div class="section-header" style="margin-top: 2.5rem">
+            <h3>📣 Official Club Announcements Feed</h3>
+          </div>
+          <div class="filter-bar">
+            <select id="ann-tag-filter" onchange="loadAnnouncements()">
+              <option value="All">All Tags & Notice Types</option>
+              <option value="Notice">Notice</option>
+              <option value="Coding Club">Coding Club</option>
+              <option value="Rotaract Club">Rotaract Club</option>
+              <option value="IEEE REC">IEEE REC</option>
+              <option value="EDC REC">EDC REC</option>
+              <option value="Fine Arts Club">Fine Arts Club</option>
+            </select>
+            <input type="text" id="ann-search" placeholder="Search announcements..." oninput="loadAnnouncements()" />
+          </div>
+
+          <div id="announcements-gated-msg" class="info-callout hidden">
+            <span>🔒 Join any REC Club above to unlock full access to the official announcement feed!</span>
+          </div>
+
+          <div class="announcements-feed" id="announcements-content">
+            <div class="loading-state">Loading announcement feed...</div>
+          </div>
+        </section>
+
+        <!-- 4. EVENTS PAGE -->
+        <section class="page hidden" id="page-events">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🎟️ REC Campus Events</h2>
+              <p class="page-desc">Hackathons, workshops, symposiums & fests with 1-click RSVP</p>
+            </div>
+            <button class="btn-primary sm hidden" id="create-event-btn" onclick="openCreateEventModal()">+ Publish Event</button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="ev-category" onchange="loadEvents()">
+              <option value="All">All Event Categories</option>
+              <option value="Tech">Tech</option>
+              <option value="Cultural">Cultural</option>
+              <option value="Sports">Sports</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Seminar">Seminar</option>
+            </select>
+            <button class="btn-sm" onclick="loadEvents()">🔄 Refresh Feed</button>
+          </div>
+
+          <div class="events-grid" id="events-feed-content">
+            <div class="loading-state">Loading campus events...</div>
+          </div>
+        </section>
+
+        <!-- 5. TIMETABLE & ROOMS PAGE -->
+        <section class="page hidden" id="page-timetable">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">📅 Academic Timetable & Vacant Rooms</h2>
+              <p class="page-desc">Weekly class schedule finder across 7 departments + live empty classroom finder</p>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <select id="tt-dept" onchange="loadTimetable()">
+              <option value="CSE">CSE (Computer Science)</option>
+              <option value="ECE">ECE (Electronics)</option>
+              <option value="IT">IT (Information Tech)</option>
+              <option value="MECH">MECH (Mechanical)</option>
+              <option value="EEE">EEE (Electrical)</option>
+              <option value="AIDS">AIDS (AI & Data Science)</option>
+              <option value="BIOTECH">BIOTECH (Biotechnology)</option>
+            </select>
+            <select id="tt-year" onchange="loadTimetable()">
+              <option value="1">1st Year</option>
+              <option value="2" selected>2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+            <select id="tt-section" onchange="loadTimetable()">
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+            </select>
+            <button class="btn-sm" onclick="loadTimetable()">🔄 Load Schedule</button>
+          </div>
+
+          <div class="timetable-container" id="timetable-content">
+            <div class="loading-state">Loading class schedule...</div>
+          </div>
+
+          <!-- Vacant Classrooms Finder Section -->
+          <div class="section-header" style="margin-top: 2.5rem">
+            <h3>🏫 Live Vacant Classroom Finder</h3>
+            <button class="btn-sm" onclick="loadFreeRooms()">🔄 Scan Campus</button>
+          </div>
+          <div class="free-rooms-grid" id="free-rooms-content">
+            <div class="loading-state">Scanning campus classrooms...</div>
+          </div>
+        </section>
+
+        <!-- 6. LOST & FOUND PAGE -->
+        <section class="page hidden" id="page-lostfound">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🔍 Campus Lost & Found Board</h2>
+              <p class="page-desc">Report lost or found campus belongings with location details and direct contact</p>
+            </div>
+            <button class="btn-primary sm" onclick="showReportModal()">+ Report Item</button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="lf-status" onchange="loadLostFound()">
+              <option value="all">All Statuses</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+              <option value="claimed">Claimed / Resolved</option>
+            </select>
+            <select id="lf-category" onchange="loadLostFound()">
+              <option value="All">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Books">Books & Stationary</option>
+              <option value="Accessories">Accessories</option>
+              <option value="ID Cards">ID Cards</option>
+              <option value="Others">Others</option>
+            </select>
+            <input type="text" id="lf-search" placeholder="Search item title or location..." oninput="loadLostFound()" />
+          </div>
+
+          <div class="lf-grid" id="lf-content">
+            <div class="loading-state">Loading reported items...</div>
+          </div>
+        </section>
+
+        <!-- 7. HOSTEL MESS PAGE -->
+        <section class="page hidden" id="page-mess">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🍲 Hostel Mess Hub</h2>
+              <p class="page-desc">Weekly meal menu for Pearl, Ruby, Emerald, Sapphire & Diamond Hostels</p>
+            </div>
+            <button class="btn-primary sm" id="rate-mess-btn" onclick="openMessReviewModal()">⭐ Rate Meal / Feedback</button>
+          </div>
+
+          <!-- Day Selection Tabs -->
+          <div class="day-selector" id="mess-day-selector">
+            <button class="day-btn" onclick="selectMessDay('Monday', this)">Mon</button>
+            <button class="day-btn" onclick="selectMessDay('Tuesday', this)">Tue</button>
+            <button class="day-btn" onclick="selectMessDay('Wednesday', this)">Wed</button>
+            <button class="day-btn" onclick="selectMessDay('Thursday', this)">Thu</button>
+            <button class="day-btn" onclick="selectMessDay('Friday', this)">Fri</button>
+            <button class="day-btn" onclick="selectMessDay('Saturday', this)">Sat</button>
+            <button class="day-btn" onclick="selectMessDay('Sunday', this)">Sun</button>
+          </div>
+
+          <div class="mess-container" id="mess-content">
+            <div class="loading-state">Loading hostel menu...</div>
+          </div>
+
+          <!-- Mess Feedback Feed -->
+          <div class="section-header" style="margin-top: 2.5rem">
+            <h3>💬 Caterer Reviews & Meal Feedback</h3>
+            <button class="btn-sm" onclick="openMessReviewModal()">+ Submit Feedback</button>
+          </div>
+          <div class="reviews-grid" id="mess-reviews-content">
+            <div class="loading-state">Loading caterer feedback...</div>
           </div>
         </section>
 
@@ -415,18 +545,22 @@
     </main>
   </div>
 
-  <!-- REPORT ITEM MODAL -->
+  <!-- ══════════════════════════════════
+       MODALS
+  ══════════════════════════════════ -->
+
+  <!-- Modal 1: Report Lost/Found Item -->
   <div class="modal-backdrop hidden" id="report-modal">
     <div class="modal">
       <div class="modal-header">
         <h3>📦 Report Lost / Found Item</h3>
-        <button class="modal-close" onclick="closeReportModal()">✕</button>
+        <button class="modal-close" onclick="closeModal('report-modal')">✕</button>
       </div>
       <form onsubmit="submitReport(event)" class="modal-form">
         <div class="form-group">
           <label>Item Title</label>
           <div class="input-wrap"><span class="input-icon">📦</span>
-            <input type="text" id="rep-title" placeholder="Casio Scientific Calculator" required />
+            <input type="text" id="rep-title" placeholder="Casio Scientific Calculator FX-991EX" required />
           </div>
         </div>
         <div class="form-row">
@@ -443,22 +577,25 @@
             <label>Category</label>
             <div class="input-wrap"><span class="input-icon">🏷️</span>
               <select id="rep-category">
-                <option>Electronics</option><option>Books</option>
-                <option>Accessories</option><option>ID Cards</option><option>Others</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Books">Books & Stationary</option>
+                <option value="Accessories">Accessories</option>
+                <option value="ID Cards">ID Cards</option>
+                <option value="Others">Others</option>
               </select>
             </div>
           </div>
         </div>
         <div class="form-group">
-          <label>Location</label>
+          <label>Campus Location</label>
           <div class="input-wrap"><span class="input-icon">📍</span>
-            <input type="text" id="rep-location" placeholder="Library 2nd Floor" required />
+            <input type="text" id="rep-location" placeholder="Library 2nd Floor / HUT CAFE Table 4" required />
           </div>
         </div>
         <div class="form-group">
-          <label>Description</label>
+          <label>Detailed Description</label>
           <div class="input-wrap"><span class="input-icon">📝</span>
-            <input type="text" id="rep-desc" placeholder="Describe the item..." />
+            <input type="text" id="rep-desc" placeholder="Color, distinguishing marks, etc." required />
           </div>
         </div>
         <div class="form-group">
@@ -467,8 +604,266 @@
             <input type="text" id="rep-phone" placeholder="+91 98765 43210" />
           </div>
         </div>
-        <button type="submit" class="btn-primary">Submit Report</button>
+        <button type="submit" class="btn-primary">Publish to Lost Board</button>
         <div class="auth-error hidden" id="rep-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Rate Canteen Dish -->
+  <div class="modal-backdrop hidden" id="canteen-review-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⭐ Rate Canteen Dish & Food Court</h3>
+        <button class="modal-close" onclick="closeModal('canteen-review-modal')">✕</button>
+      </div>
+      <form onsubmit="submitCanteenRating(event)" class="modal-form">
+        <div class="form-group">
+          <label>Food Court Outlet</label>
+          <div class="input-wrap"><span class="input-icon">🏪</span>
+            <select id="cr-court">
+              <option value="HUT CAFE">HUT CAFE</option>
+              <option value="REC CAFE">REC CAFE</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Dish Name</label>
+          <div class="input-wrap"><span class="input-icon">🍲</span>
+            <input type="text" id="cr-dish" placeholder="REC Special Dum Biryani" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Rating (1 to 5 Stars)</label>
+          <div class="star-rating-select">
+            <button type="button" class="star-btn" onclick="setStarRating('cr-rating', 1)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('cr-rating', 2)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('cr-rating', 3)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('cr-rating', 4)">★</button>
+            <button type="button" class="star-btn active" onclick="setStarRating('cr-rating', 5)">★</button>
+            <input type="hidden" id="cr-rating" value="5" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Your Review / Comment</label>
+          <div class="input-wrap"><span class="input-icon">💬</span>
+            <input type="text" id="cr-comment" placeholder="Delicious and freshly prepared!" required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Submit Canteen Feedback</button>
+        <div class="auth-error hidden" id="cr-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Rate Mess Meal -->
+  <div class="modal-backdrop hidden" id="mess-review-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🍲 Submit Hostel Mess Feedback</h3>
+        <button class="modal-close" onclick="closeModal('mess-review-modal')">✕</button>
+      </div>
+      <form onsubmit="submitMessRating(event)" class="modal-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hostel Block</label>
+            <div class="input-wrap"><span class="input-icon">🏢</span>
+              <select id="mr-hostel">
+                <option value="Pearl Hostel">Pearl Hostel</option>
+                <option value="Ruby Hostel">Ruby Hostel</option>
+                <option value="Emerald Hostel">Emerald Hostel</option>
+                <option value="Sapphire Hostel">Sapphire Hostel</option>
+                <option value="Diamond Hostel">Diamond Hostel</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Meal Type</label>
+            <div class="input-wrap"><span class="input-icon">🍽️</span>
+              <select id="mr-meal">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch" selected>Lunch</option>
+                <option value="Snacks">Snacks</option>
+                <option value="Dinner">Dinner</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Dish Name</label>
+          <div class="input-wrap"><span class="input-icon">🍛</span>
+            <input type="text" id="mr-dish" placeholder="Paneer Butter Masala & Rice" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Rating (1 to 5 Stars)</label>
+          <div class="star-rating-select">
+            <button type="button" class="star-btn" onclick="setStarRating('mr-rating', 1)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('mr-rating', 2)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('mr-rating', 3)">★</button>
+            <button type="button" class="star-btn" onclick="setStarRating('mr-rating', 4)">★</button>
+            <button type="button" class="star-btn active" onclick="setStarRating('mr-rating', 5)">★</button>
+            <input type="hidden" id="mr-rating" value="5" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Review Comment</label>
+          <div class="input-wrap"><span class="input-icon">💬</span>
+            <input type="text" id="mr-comment" placeholder="Very tasty and warm food!" required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Submit Mess Rating</button>
+        <div class="auth-error hidden" id="mr-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Publish Event (Restricted to Leads/Staff/Admin) -->
+  <div class="modal-backdrop hidden" id="create-event-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🎟️ Publish New Campus Event</h3>
+        <button class="modal-close" onclick="closeModal('create-event-modal')">✕</button>
+      </div>
+      <form onsubmit="submitCreateEvent(event)" class="modal-form">
+        <div class="form-group">
+          <label>Event Title</label>
+          <div class="input-wrap"><span class="input-icon">🎪</span>
+            <input type="text" id="ce-title" placeholder="REC Hackathon 2026" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <div class="input-wrap"><span class="input-icon">🏷️</span>
+              <select id="ce-category">
+                <option value="Tech">Tech</option>
+                <option value="Cultural">Cultural</option>
+                <option value="Sports">Sports</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Seminar">Seminar</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Organizer</label>
+            <div class="input-wrap"><span class="input-icon">🏛</span>
+              <input type="text" id="ce-organizer" placeholder="Coding Club REC" required />
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <div class="input-wrap"><span class="input-icon">📅</span>
+              <input type="date" id="ce-date" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <div class="input-wrap"><span class="input-icon">🕐</span>
+              <input type="text" id="ce-time" placeholder="10:00 AM - 04:00 PM" required />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Venue</label>
+          <div class="input-wrap"><span class="input-icon">📍</span>
+            <input type="text" id="ce-venue" placeholder="Indoor Auditorium / J Block" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <div class="input-wrap"><span class="input-icon">📝</span>
+            <input type="text" id="ce-desc" placeholder="Details about registration, prizes, etc." required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Banner Image URL (Optional)</label>
+          <div class="input-wrap"><span class="input-icon">🖼️</span>
+            <input type="url" id="ce-banner" placeholder="https://images.unsplash.com/..." />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Publish to Campus Feed</button>
+        <div class="auth-error hidden" id="ce-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Post Club Announcement -->
+  <div class="modal-backdrop hidden" id="announcement-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📣 Post Official Club Announcement</h3>
+        <button class="modal-close" onclick="closeModal('announcement-modal')">✕</button>
+      </div>
+      <form onsubmit="submitAnnouncement(event)" class="modal-form">
+        <div class="form-group">
+          <label>Club Name</label>
+          <div class="input-wrap"><span class="input-icon">🚀</span>
+            <input type="text" id="ca-club" placeholder="Coding Club REC" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Announcement Title</label>
+          <div class="input-wrap"><span class="input-icon">📌</span>
+            <input type="text" id="ca-title" placeholder="Annual Hackathon Recruitment Drive Open!" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Content / Notice</label>
+          <div class="input-wrap"><span class="input-icon">💬</span>
+            <input type="text" id="ca-content" placeholder="Write full announcement details..." required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Broadcast Notice</button>
+        <div class="auth-error hidden" id="ca-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Edit User Profile -->
+  <div class="modal-backdrop hidden" id="profile-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>👤 Student / Staff Profile Settings</h3>
+        <button class="modal-close" onclick="closeModal('profile-modal')">✕</button>
+      </div>
+      <form onsubmit="submitProfileUpdate(event)" class="modal-form">
+        <div class="profile-preview-card">
+          <img id="prof-pfp-preview" src="" alt="Avatar" class="profile-preview-img" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=REC'" />
+          <div>
+            <h4 id="prof-preview-name">Name</h4>
+            <p id="prof-preview-email" style="font-size:.78rem;color:var(--text-secondary)"></p>
+            <span class="user-badge" id="prof-preview-role">Role</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Profile Avatar URL / Seed</label>
+          <div class="input-wrap"><span class="input-icon">🖼️</span>
+            <input type="text" id="prof-pfp" placeholder="https://api.dicebear.com/7.x/avataaars/svg?seed=YourName" oninput="updatePfpPreview(this.value)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <div class="input-wrap"><span class="input-icon">✍️</span>
+            <input type="text" id="prof-bio" placeholder="REC Campus Student" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Contact Phone</label>
+          <div class="input-wrap"><span class="input-icon">📱</span>
+            <input type="text" id="prof-phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Designation / Campus Room</label>
+          <div class="input-wrap"><span class="input-icon">📍</span>
+            <input type="text" id="prof-designation" placeholder="Pearl Hostel Resident / J Block" />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Save Profile Changes</button>
+        <div class="auth-error hidden" id="prof-error"></div>
       </form>
     </div>
   </div>
