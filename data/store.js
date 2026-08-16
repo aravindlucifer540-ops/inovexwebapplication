@@ -1,10 +1,8 @@
 const bcrypt = require('bcryptjs');
 const EMAIL_REGISTRY = require('./emailRegistry');
 
-// In-memory data store with pre-hashed default password for test accounts
+// In-memory initial data store seed
 const users = [];
-
-// Seed pre-registered accounts for testing immediately
 const defaultPasswordHash = bcrypt.hashSync('Password@123', 10);
 
 EMAIL_REGISTRY.forEach((reg, index) => {
@@ -24,47 +22,71 @@ EMAIL_REGISTRY.forEach((reg, index) => {
     isAdmin: reg.role === 'admin',
     clubsJoined: reg.clubsJoined,
     designation: reg.designation,
+    pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(reg.name)}`,
+    bio: 'Official REC Campus Companion User',
+    phone: '+91 98765 43210',
     createdAt: new Date().toISOString()
   });
 });
 
-// Helper to generate realistic weekly timetable for any Dept-Year-Sec
+// Campus Locations Registry
+const CAMPUS_LOCATIONS = [
+  "HUT CAFE",
+  "REC CAFE",
+  "J Block",
+  "I Block",
+  "A Block",
+  "B block",
+  "K block",
+  "Indoor auditorium"
+];
+
+const HOSTEL_NAMES = [
+  "Pearl Hostel",
+  "Ruby Hostel",
+  "Emerald Hostel",
+  "Sapphire Hostel",
+  "Diamond Hostel"
+];
+
+// Helper to generate sample schedule using official block locations
 function generateSampleSchedule(dept, year, sec) {
+  const roomPrefix = dept === 'CSE' ? 'J Block' : (dept === 'ECE' ? 'I Block' : (dept === 'IT' ? 'B block' : 'K block'));
   return {
     "Monday": [
-      { period: 1, time: "08:30 - 09:20", subject: `${dept} Core Concepts`, room: `${dept[0]}B-101`, faculty: `Dr. A. Ramesh (${dept})` },
-      { period: 2, time: "09:20 - 10:10", subject: `Applied Engineering Math`, room: `${dept[0]}B-101`, faculty: "Prof. K. Aruna (Maths)" },
-      { period: 3, time: "10:30 - 11:20", subject: `${dept} Systems & Design`, room: `${dept[0]}B-102`, faculty: `Dr. S. Rajesh (${dept})` },
-      { period: 4, time: "11:20 - 12:10", subject: "Professional Ethics & Values", room: "Audi-1", faculty: "Dr. G. Lalitha" },
-      { period: 5, time: "01:00 - 02:40", subject: `${dept} Practical Lab`, room: `${dept} Lab-1`, faculty: `Dr. A. Ramesh & Lab Team` }
+      { period: 1, time: "08:30 - 09:20", subject: `${dept} Core Concepts`, room: `${roomPrefix} - ${dept}-101`, faculty: `Dr. A. Ramesh (${dept})` },
+      { period: 2, time: "09:20 - 10:10", subject: `Applied Engineering Math`, room: `A Block - A-201`, faculty: "Prof. K. Aruna (Maths)" },
+      { period: 3, time: "10:30 - 11:20", subject: `${dept} Systems & Design`, room: `${roomPrefix} - ${dept}-102`, faculty: `Dr. S. Rajesh (${dept})` },
+      { period: 4, time: "11:20 - 12:10", subject: "Professional Ethics & Values", room: "Indoor auditorium", faculty: "Dr. G. Lalitha" },
+      { period: 5, time: "01:00 - 02:40", subject: `${dept} Practical Lab`, room: `${roomPrefix} Lab-1`, faculty: `Dr. A. Ramesh & Team` }
     ],
     "Tuesday": [
-      { period: 1, time: "08:30 - 09:20", subject: "Environmental Studies", room: `${dept[0]}B-101`, faculty: "Dr. G. Lalitha" },
-      { period: 2, time: "09:20 - 10:10", subject: `${dept} Systems & Design`, room: `${dept[0]}B-102`, faculty: `Dr. S. Rajesh (${dept})` },
-      { period: 3, time: "10:30 - 11:20", subject: `${dept} Core Concepts`, room: `${dept[0]}B-101`, faculty: `Dr. A. Ramesh (${dept})` },
-      { period: 4, time: "11:20 - 12:10", subject: "Data Analysis & Statistics", room: `${dept[0]}B-101`, faculty: "Prof. M. Selvam" },
-      { period: 5, time: "01:00 - 02:40", subject: "Project Work & Mentoring", room: "Central Library", faculty: "Department Mentors" }
+      { period: 1, time: "08:30 - 09:20", subject: "Environmental Studies", room: `A Block - A-101`, faculty: "Dr. G. Lalitha" },
+      { period: 2, time: "09:20 - 10:10", subject: `${dept} Systems & Design`, room: `${roomPrefix} - ${dept}-102`, faculty: `Dr. S. Rajesh (${dept})` },
+      { period: 3, time: "10:30 - 11:20", subject: `${dept} Core Concepts`, room: `${roomPrefix} - ${dept}-101`, faculty: `Dr. A. Ramesh (${dept})` },
+      { period: 4, time: "11:20 - 12:10", subject: "Data Analysis & Statistics", room: `J Block - J-204`, faculty: "Prof. M. Selvam" },
+      { period: 5, time: "01:00 - 02:40", subject: "Project Work & Mentoring", room: "K block Library Desk", faculty: "Department Mentors" }
     ],
     "Wednesday": [
-      { period: 1, time: "08:30 - 09:20", subject: "Applied Engineering Math", room: `${dept[0]}B-101`, faculty: "Prof. K. Aruna (Maths)" },
-      { period: 2, time: "09:20 - 10:10", subject: `${dept} Core Concepts`, room: `${dept[0]}B-101`, faculty: `Dr. A. Ramesh (${dept})` },
-      { period: 3, time: "10:30 - 11:20", subject: "Technical Communication", room: "Audi-2", faculty: "Prof. Sarah J" },
-      { period: 4, time: "11:20 - 12:10", subject: `${dept} Advanced Elective`, room: `${dept[0]}B-103`, faculty: `Prof. P. Anand` },
-      { period: 5, time: "01:00 - 02:40", subject: "Computer Simulation Lab", room: `${dept} Lab-2`, faculty: "Lab Faculty Team" }
+      { period: 1, time: "08:30 - 09:20", subject: "Applied Engineering Math", room: `A Block - A-201`, faculty: "Prof. K. Aruna (Maths)" },
+      { period: 2, time: "09:20 - 10:10", subject: `${dept} Core Concepts`, room: `${roomPrefix} - ${dept}-101`, faculty: `Dr. A. Ramesh (${dept})` },
+      { period: 3, time: "10:30 - 11:20", subject: "Technical Communication", room: "Indoor auditorium", faculty: "Prof. Sarah J" },
+      { period: 4, time: "11:20 - 12:10", subject: `${dept} Advanced Elective`, room: `I Block - I-303`, faculty: `Prof. P. Anand` },
+      { period: 5, time: "01:00 - 02:40", subject: "Computer Simulation Lab", room: `${roomPrefix} Lab-2`, faculty: "Lab Faculty Team" }
     ],
     "Thursday": [
-      { period: 1, time: "08:30 - 09:20", subject: `${dept} Systems & Design`, room: `${dept[0]}B-102`, faculty: `Dr. S. Rajesh (${dept})` },
-      { period: 2, time: "09:20 - 10:10", subject: `${dept} Advanced Elective`, room: `${dept[0]}B-103`, faculty: `Prof. P. Anand` },
-      { period: 3, time: "10:30 - 11:20", subject: "Applied Engineering Math", room: `${dept[0]}B-101`, faculty: "Prof. K. Aruna (Maths)" },
-      { period: 4, time: "11:20 - 12:10", subject: `${dept} Core Concepts`, room: `${dept[0]}B-101`, faculty: `Dr. A. Ramesh (${dept})` },
-      { period: 5, time: "01:00 - 02:40", subject: "Skill Enhancement Workshop", room: "Mini Audi", faculty: "External Industry Trainer" }
+      { period: 1, time: "08:30 - 09:20", subject: `${dept} Systems & Design`, room: `${roomPrefix} - ${dept}-102`, faculty: `Dr. S. Rajesh (${dept})` },
+      { period: 2, time: "09:20 - 10:10", subject: `${dept} Advanced Elective`, room: `I Block - I-303`, faculty: `Prof. P. Anand` },
+      { period: 3, time: "10:30 - 11:20", subject: "Applied Engineering Math", room: `A Block - A-201`, faculty: "Prof. K. Aruna (Maths)" },
+      { period: 4, time: "11:20 - 12:10", subject: `${dept} Core Concepts`, room: `${roomPrefix} - ${dept}-101`, faculty: `Dr. A. Ramesh (${dept})` },
+      { period: 5, time: "01:00 - 02:40", subject: "Skill Enhancement Workshop", room: "Indoor auditorium", faculty: "External Industry Trainer" }
     ],
     "Friday": [
-      { period: 1, time: "08:30 - 09:20", subject: "Data Analysis & Statistics", room: `${dept[0]}B-101`, faculty: "Prof. M. Selvam" },
-      { period: 2, time: "09:20 - 10:10", subject: "Environmental Studies", room: `${dept[0]}B-101`, faculty: "Dr. G. Lalitha" },
-      { period: 3, time: "10:30 - 11:20", subject: `${dept} Advanced Elective`, room: `${dept[0]}B-103`, faculty: `Prof. P. Anand` },
-      { period: 4, time: "11:20 - 12:10", subject: "Department Tutor Hour", room: `${dept[0]}B-101`, faculty: `Staff Coordinator` },
-      { period: 5, time: "01:00 - 02:40", subject: "Sports & Club Activity Hour", room: "Campus Grounds / Club Hub", faculty: "Physical Ed Team" }
+      { period: 1, time: "08:30 - 09:20", subject: "Data Analysis & Statistics", room: `J Block - J-204`, faculty: "Prof. M. Selvam" },
+      { period: 2, time: "09:20 - 10:10", subject: "Environmental Studies", room: `A Block - A-101`, faculty: "Dr. G. Lalitha" },
+      { period: 3, time: "10:30 - 11:20", subject: `${dept} Advanced Elective`, room: `I Block - I-303`, faculty: `Prof. P. Anand` },
+      { period: 4, time: "11:20 - 12:10", subject: "Department Tutor Hour", room: `${roomPrefix} - ${dept}-101`, faculty: `Staff Coordinator` },
+      { period: 5, time: "01:00 - 02:40", subject: "Sports & Club Activity Hour", room: "REC Sports Complex & Indoor auditorium", faculty: "Physical Ed Team" }
     ]
   };
 }
@@ -97,7 +119,7 @@ const events = [
     organizer: "Coding Club REC",
     date: "2026-08-28",
     time: "09:00 AM - 09:00 AM (24 Hours)",
-    venue: "Main Auditorium & Tech Park",
+    venue: "Indoor auditorium",
     description: "Annual 24-Hour National Level Hackathon with cash prizes worth ₹1.5 Lakhs across Web3, AI, and Campus Tech tracks.",
     bannerUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600",
     rsvps: ["admin@rajalakshmi.edu.in", "lead.coding@rajalakshmi.edu.in", "member.rotaract@rajalakshmi.edu.in", "hostel.student1@rajalakshmi.edu.in"],
@@ -111,7 +133,7 @@ const events = [
     organizer: "Rotaract Club & Fine Arts REC",
     date: "2026-09-05",
     time: "04:30 PM - 09:30 PM",
-    venue: "REC Open Air Theatre (OAT)",
+    venue: "Indoor auditorium & REC CAFE Lawn",
     description: "Battle of the Bands, Group Dance Championship, Pro-Nite Concert featuring top playback singers!",
     bannerUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600",
     rsvps: ["lead.rotaract@rajalakshmi.edu.in", "member.rotaract@rajalakshmi.edu.in", "hostel.student2@rajalakshmi.edu.in"],
@@ -125,7 +147,7 @@ const events = [
     organizer: "IEEE REC Student Branch",
     date: "2026-09-02",
     time: "10:00 AM - 03:00 PM",
-    venue: "ECE Seminar Hall (Block 2)",
+    venue: "J Block Seminar Hall",
     description: "Hands-on workshop on ESP32, Sensor Interfacing, and Blynk Cloud Dashboard integration. Hardware kits provided.",
     bannerUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600",
     rsvps: ["member.ieee@rajalakshmi.edu.in", "staff.ece@rajalakshmi.edu.in"],
@@ -141,7 +163,7 @@ const lostFoundItems = [
     title: "Blue Boat Airdopes 141 in Black Case",
     category: "Electronics",
     status: "lost",
-    location: "Main Canteen Table 14 (Near Juice Counter)",
+    location: "HUT CAFE Table 14 (Near Juice Counter)",
     description: "Left my earbuds case while having lunch around 1:30 PM. Has a small Batman sticker on top.",
     imageUrl: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500",
     contactName: "Rahul Sharma",
@@ -155,8 +177,8 @@ const lostFoundItems = [
     title: "Casio FX-991EX Scientific Calculator",
     category: "Electronics",
     status: "found",
-    location: "Tech Block Room 302 (Submitted to Security)",
-    description: "Found on 2nd bench after Period 4 Maths lecture. Handed over to Block 3 Security guard desk.",
+    location: "J Block Room 302 (Submitted to Security Desk)",
+    description: "Found on 2nd bench after Period 4 Maths lecture. Handed over to J Block Security guard desk.",
     imageUrl: "https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=500",
     contactName: "Prof. S. Nithya",
     contactPhone: "+91 94440 98765",
@@ -169,10 +191,10 @@ const lostFoundItems = [
     title: "Official REC College ID Card (ECE 2nd Year)",
     category: "ID Card",
     status: "claimed",
-    location: "Central Library Ground Floor Desk",
+    location: "Indoor auditorium Main Entrance Desk",
     description: "ID Card belonging to Karthik Raja (21172202045). Successfully claimed by owner.",
     imageUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500",
-    contactName: "Library Helpdesk",
+    contactName: "Helpdesk Coordinator",
     contactPhone: "+91 91234 56789",
     contactEmail: "member.rotaract@rajalakshmi.edu.in",
     dateReported: "2026-08-11",
@@ -189,7 +211,7 @@ const clubAnnouncements = [
     title: "⚡ Core Executive Committee Recruitment Drive 2026-27",
     category: "Recruitment",
     tags: ["Recruitment", "Tech", "Hiring"],
-    content: "We are hiring Web Devs, Competitive Programmers, UI Designers, and Event Coordinators! Open for 2nd and 3rd year students. Apply before August 30.",
+    content: "We are hiring Web Devs, Competitive Programmers, UI Designers, and Event Coordinators! Open for 2nd and 3rd year students. Interviews in J Block Room 201.",
     date: "2026-08-14",
     postedBy: "lead.coding@rajalakshmi.edu.in"
   },
@@ -200,7 +222,7 @@ const clubAnnouncements = [
     title: "🩸 Mega Blood Donation Drive in Association with Rotary Chennai",
     category: "Event",
     tags: ["SocialCause", "Notice", "Volunteer"],
-    content: "Join us this Friday at Health Centre Annex. All donors receive official certificate, refreshment box, and OD (On-Duty) approval for missed periods.",
+    content: "Join us this Friday at Indoor auditorium Annex. All donors receive official certificate, refreshment box from HUT CAFE, and OD approval.",
     date: "2026-08-13",
     postedBy: "lead.rotaract@rajalakshmi.edu.in"
   },
@@ -211,14 +233,15 @@ const clubAnnouncements = [
     title: "📜 Call for Student Research Papers - IEEE ICEEC 2026",
     category: "Notice",
     tags: ["Research", "PaperSubmission", "IEEE"],
-    content: "Submit your final year project abstracts and research papers for IEEE publication track. Financial sponsorship provided for top 3 papers.",
+    content: "Submit your final year project abstracts and research papers for IEEE publication track. Submissions desk in I Block Lab 1.",
     date: "2026-08-12",
     postedBy: "staff.ece@rajalakshmi.edu.in"
   }
 ];
 
-// Seed Data for Module 5: Mess Menu & Ratings (Restricted to Hostellers, Staff, Admin)
+// Seed Data for Module 5: Mess Menu & Ratings
 const messData = {
+  hostels: HOSTEL_NAMES,
   weeklyMenu: {
     "Monday": {
       breakfast: ["Ghee Pongal", "Medu Vada", "Coconut Chutney", "Sambar", "Tea / Coffee / Milk"],
@@ -256,76 +279,81 @@ const messData = {
     {
       id: "rev-1",
       day: "Monday",
+      hostelName: "Pearl Hostel",
       mealType: "Lunch",
       dishName: "Paneer Butter Masala",
       rating: 5,
-      comment: "Paneer was fresh and gravy was super rich today! Best Monday lunch in weeks.",
-      studentName: "Rahul Sharma (Hostel Block A)",
+      comment: "Paneer was fresh and gravy was super rich today! Best Monday lunch in Pearl Hostel mess.",
+      studentName: "Rahul Sharma (Pearl Hostel)",
       email: "hostel.student1@rajalakshmi.edu.in",
       createdAt: "2026-08-15T12:45:00Z"
     },
     {
       id: "rev-2",
       day: "Monday",
+      hostelName: "Ruby Hostel",
       mealType: "Breakfast",
       dishName: "Ghee Pongal",
       rating: 4,
-      comment: "Good hot pongal, chutney needed a bit more salt.",
-      studentName: "Deepika R (Hostel Block B)",
+      comment: "Good hot pongal in Ruby Hostel mess, chutney needed a bit more salt.",
+      studentName: "Deepika R (Ruby Hostel)",
       email: "hostel.student2@rajalakshmi.edu.in",
       createdAt: "2026-08-15T09:10:00Z"
     }
   ]
 };
 
-// Seed Data for College Canteen & Food Court (Open to ALL Students & Staff)
+// Seed Data for College Canteen & Food Court
 const canteenData = {
+  foodCourts: ["HUT CAFE", "REC CAFE"],
   rushGauge: "Low Rush",
   menuCategories: [
     {
       category: "Snacks & Quick Bites",
       items: [
-        { name: "Crispy Samosa (2 pcs)", price: "₹25", rating: 4.8 },
-        { name: "Paneer Puff", price: "₹30", rating: 4.6 },
-        { name: "Cheese Chilli Toast", price: "₹45", rating: 4.7 },
-        { name: "Veg Bread Omelette", price: "₹40", rating: 4.9 }
+        { name: "Crispy Samosa (2 pcs)", price: "₹25", rating: 4.8, availableAt: "HUT CAFE & REC CAFE" },
+        { name: "Paneer Puff", price: "₹30", rating: 4.6, availableAt: "HUT CAFE" },
+        { name: "Cheese Chilli Toast", price: "₹45", rating: 4.7, availableAt: "REC CAFE" },
+        { name: "Veg Bread Omelette", price: "₹40", rating: 4.9, availableAt: "HUT CAFE" }
       ]
     },
     {
       category: "Fresh Juices & Beverages",
       items: [
-        { name: "Chilled Mango Milkshake", price: "₹50", rating: 4.9 },
-        { name: "Fresh Watermelon Juice", price: "₹40", rating: 4.7 },
-        { name: "Cold Coffee with Ice Cream", price: "₹60", rating: 4.8 },
-        { name: "Hot Filter Coffee", price: "₹15", rating: 4.9 }
+        { name: "Chilled Mango Milkshake", price: "₹50", rating: 4.9, availableAt: "HUT CAFE" },
+        { name: "Fresh Watermelon Juice", price: "₹40", rating: 4.7, availableAt: "REC CAFE" },
+        { name: "Cold Coffee with Ice Cream", price: "₹60", rating: 4.8, availableAt: "HUT CAFE & REC CAFE" },
+        { name: "Hot Filter Coffee", price: "₹15", rating: 4.9, availableAt: "REC CAFE" }
       ]
     },
     {
       category: "Main Food Court Special Meals",
       items: [
-        { name: "REC Special Dum Biryani", price: "₹110", rating: 4.9 },
-        { name: "Fried Rice / Noodles Combo", price: "₹90", rating: 4.5 },
-        { name: "North Indian Thali", price: "₹100", rating: 4.6 },
-        { name: "Mini South Indian Meals", price: "₹70", rating: 4.7 }
+        { name: "REC Special Dum Biryani", price: "₹110", rating: 4.9, availableAt: "REC CAFE" },
+        { name: "Fried Rice / Noodles Combo", price: "₹90", rating: 4.5, availableAt: "HUT CAFE" },
+        { name: "North Indian Thali", price: "₹100", rating: 4.6, availableAt: "REC CAFE" },
+        { name: "Mini South Indian Meals", price: "₹70", rating: 4.7, availableAt: "HUT CAFE" }
       ]
     }
   ],
   ratings: [
     {
       id: "cant-1",
+      canteenName: "REC CAFE",
       dishName: "REC Special Dum Biryani",
       rating: 5,
-      comment: "Biryani today was insanely flavorful! Huge portion size.",
-      studentName: "Vignesh Kumar (Day Scholar - IT)",
+      comment: "Biryani today at REC CAFE was insanely flavorful! Huge portion size.",
+      studentName: "Vignesh Kumar (Day Scholar - J Block)",
       email: "student.dayscholar@rajalakshmi.edu.in",
       createdAt: "2026-08-15T13:15:00Z"
     },
     {
       id: "cant-2",
+      canteenName: "HUT CAFE",
       dishName: "Cold Coffee with Ice Cream",
       rating: 5,
-      comment: "Perfect refresh after Period 3 lab!",
-      studentName: "Prof. S. Nithya (ECE Staff)",
+      comment: "Perfect refresh at HUT CAFE after Period 3 lab!",
+      studentName: "Prof. S. Nithya (I Block Staff)",
       email: "staff.ece@rajalakshmi.edu.in",
       createdAt: "2026-08-15T11:40:00Z"
     }
@@ -333,6 +361,8 @@ const canteenData = {
 };
 
 module.exports = {
+  CAMPUS_LOCATIONS,
+  HOSTEL_NAMES,
   users,
   timetables,
   events,

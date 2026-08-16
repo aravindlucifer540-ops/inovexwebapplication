@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const EMAIL_REGISTRY = require('../data/emailRegistry');
-const { users } = require('../data/store');
+const { getDatabase, saveDatabase } = require('../data/dbPersistence');
 const { JWT_SECRET, verifyToken } = require('../middleware/auth');
 
 // Endpoint: Check official email against REC Registry Sheet
@@ -55,6 +55,7 @@ router.post('/registry-check', (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, gender, department, year, isHosteller } = req.body;
+    const db = getDatabase();
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required fields.' });
@@ -68,14 +69,12 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    const existingUser = users.find(u => u.email.toLowerCase() === cleanEmail);
+    const existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'An account with this official email already exists. Please log in.' });
     }
 
-    // Match against registry sheet to inherit pre-assigned privileges if any
     const matchedRegistry = EMAIL_REGISTRY.find(item => item.email.toLowerCase() === cleanEmail);
-
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = {
@@ -93,14 +92,15 @@ router.post('/register', async (req, res) => {
       isStaff: matchedRegistry ? matchedRegistry.isStaff : false,
       isAdmin: matchedRegistry ? matchedRegistry.role === 'admin' : false,
       clubsJoined: matchedRegistry ? matchedRegistry.clubsJoined : [],
-      designation: matchedRegistry ? matchedRegistry.designation : (Boolean(isHosteller) ? 'Hostel Resident Student' : 'Day Scholar Student'),
-      pfpUrl: matchedRegistry ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${matchedRegistry.name}` : '',
+      designation: matchedRegistry ? matchedRegistry.designation : (Boolean(isHosteller) ? 'Pearl Hostel Resident' : 'Day Scholar Student'),
+      pfpUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name.trim())}`,
       bio: 'Official REC Campus Companion User',
       phone: '+91 98765 43210',
       createdAt: new Date().toISOString()
     };
 
-    users.push(newUser);
+    db.users.push(newUser);
+    saveDatabase();
 
     const payload = {
       id: newUser.id,
@@ -140,13 +140,14 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    const db = getDatabase();
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide both email and password.' });
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+    const user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
 
     if (!user) {
       return res.status(401).json({
@@ -175,7 +176,7 @@ router.post('/login', async (req, res) => {
       isAdmin: user.isAdmin,
       clubsJoined: user.clubsJoined,
       designation: user.designation,
-      pfpUrl: user.pfpUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
+      pfpUrl: user.pfpUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name)}`,
       bio: user.bio || 'REC Campus Student',
       phone: user.phone || '+91 98765 43210'
     };
@@ -196,11 +197,13 @@ router.post('/login', async (req, res) => {
 
 // Endpoint: Fetch Current Logged-in User Profile
 router.get('/me', verifyToken, (req, res) => {
-  const user = users.find(u => u.email === req.user.email);
+  const db = getDatabase();
+  const user = db.users.find(u => u.email === req.user.email);
   if (user) {
     req.user.pfpUrl = user.pfpUrl || req.user.pfpUrl;
     req.user.bio = user.bio || req.user.bio;
     req.user.phone = user.phone || req.user.phone;
+    req.user.designation = user.designation || req.user.designation;
   }
   res.json({
     success: true,
@@ -208,14 +211,15 @@ router.get('/me', verifyToken, (req, res) => {
   });
 });
 
-// Endpoint: Update User Profile (PFP, Name, Bio, Phone, Department, Year, Hosteller toggle)
+// Endpoint: Update User Profile
 router.put('/profile', verifyToken, (req, res) => {
-  const user = users.find(u => u.email === req.user.email);
+  const db = getDatabase();
+  const user = db.users.find(u => u.email === req.user.email);
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found.' });
   }
 
-  const { name, pfpUrl, bio, phone, gender, department, year, isHosteller } = req.body;
+  const { name, pfpUrl, bio, phone, gender, department, year, isHosteller, designation } = req.body;
 
   if (name) user.name = name.trim();
   if (pfpUrl) user.pfpUrl = pfpUrl;
@@ -224,7 +228,10 @@ router.put('/profile', verifyToken, (req, res) => {
   if (gender) user.gender = gender;
   if (department) user.department = department;
   if (year) user.year = year;
+  if (designation) user.designation = designation;
   if (typeof isHosteller !== 'undefined') user.isHosteller = Boolean(isHosteller);
+
+  saveDatabase();
 
   const payload = {
     id: user.id,

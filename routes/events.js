@@ -1,27 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const { events } = require('../data/store');
+const { getDatabase, saveDatabase } = require('../data/dbPersistence');
 const { verifyToken, requireEventPublisher } = require('../middleware/auth');
 
-// Get all events feed (Viewable by everyone)
+// Get all events feed
 router.get('/', verifyToken, (req, res) => {
+  const db = getDatabase();
   const category = req.query.category;
-  let filtered = events;
+  let filtered = db.events;
   if (category && category !== 'All') {
-    filtered = events.filter(e => e.category.toLowerCase() === category.toLowerCase());
+    filtered = db.events.filter(e => e.category.toLowerCase() === category.toLowerCase());
   }
   res.json({
     success: true,
     count: filtered.length,
     data: filtered,
-    userRsvps: events.filter(e => e.rsvps.includes(req.user.email)).map(e => e.id)
+    userRsvps: db.events.filter(e => e.rsvps.includes(req.user.email)).map(e => e.id)
   });
 });
 
-// One-click RSVP toggle (Available to everyone)
+// One-click RSVP toggle
 router.post('/:id/rsvp', verifyToken, (req, res) => {
+  const db = getDatabase();
   const { id } = req.params;
-  const event = events.find(e => e.id === id);
+  const event = db.events.find(e => e.id === id);
 
   if (!event) {
     return res.status(404).json({ success: false, message: 'Event not found.' });
@@ -39,6 +41,8 @@ router.post('/:id/rsvp', verifyToken, (req, res) => {
     isRsvpd = true;
   }
 
+  saveDatabase();
+
   res.json({
     success: true,
     message: isRsvpd ? 'RSVP confirmed! Event added to your schedule.' : 'RSVP cancelled.',
@@ -47,8 +51,9 @@ router.post('/:id/rsvp', verifyToken, (req, res) => {
   });
 });
 
-// Upload/Create new event (Restricted to Admin, Staff, and Club Leads ONLY)
+// Upload/Create new event (Restricted to Admin, Staff, and Club Leads)
 router.post('/', verifyToken, requireEventPublisher, (req, res) => {
+  const db = getDatabase();
   const { title, category, organizer, date, time, venue, description, bannerUrl } = req.body;
 
   if (!title || !category || !date || !time || !venue || !description) {
@@ -63,14 +68,15 @@ router.post('/', verifyToken, requireEventPublisher, (req, res) => {
     date,
     time,
     venue,
-    description,
+    description: description.trim(),
     bannerUrl: bannerUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600',
     rsvps: [req.user.email],
     createdBy: req.user.email,
     createdAt: new Date().toISOString()
   };
 
-  events.unshift(newEvent);
+  db.events.unshift(newEvent);
+  saveDatabase();
 
   res.status(201).json({
     success: true,

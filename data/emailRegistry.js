@@ -16,7 +16,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: true,
     clubsJoined: ["Coding Club", "Rotaract Club", "IEEE REC", "EDC REC", "Fine Arts Club"],
-    designation: "Campus Admin & Principal"
+    designation: "Campus Admin & Principal (A Block)"
   },
   {
     email: "hod.cse@rajalakshmi.edu.in",
@@ -30,7 +30,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: true,
     clubsJoined: ["Coding Club", "IEEE REC"],
-    designation: "HOD - Computer Science"
+    designation: "HOD - Computer Science (J Block)"
   },
   {
     email: "staff.ece@rajalakshmi.edu.in",
@@ -44,7 +44,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: true,
     clubsJoined: ["IEEE REC"],
-    designation: "Assistant Professor - ECE"
+    designation: "Assistant Professor - ECE (I Block)"
   },
   {
     email: "lead.coding@rajalakshmi.edu.in",
@@ -58,7 +58,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: false,
     clubsJoined: ["Coding Club"],
-    designation: "President - Coding Club REC"
+    designation: "President - Coding Club REC (Pearl Hostel)"
   },
   {
     email: "lead.rotaract@rajalakshmi.edu.in",
@@ -72,7 +72,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: false,
     clubsJoined: ["Rotaract Club", "Fine Arts Club"],
-    designation: "President - Rotaract REC"
+    designation: "President - Rotaract REC (B block)"
   },
   {
     email: "member.rotaract@rajalakshmi.edu.in",
@@ -86,7 +86,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: false,
     clubsJoined: ["Rotaract Club"],
-    designation: "Active Member - Rotaract"
+    designation: "Active Member - Rotaract (Emerald Hostel)"
   },
   {
     email: "member.ieee@rajalakshmi.edu.in",
@@ -100,7 +100,7 @@ const EMAIL_REGISTRY = [
     isClubMember: true,
     isStaff: false,
     clubsJoined: ["IEEE REC"],
-    designation: "Member - IEEE REC Chapter"
+    designation: "Member - IEEE REC Chapter (K block)"
   },
   {
     email: "hostel.student1@rajalakshmi.edu.in",
@@ -114,7 +114,7 @@ const EMAIL_REGISTRY = [
     isClubMember: false,
     isStaff: false,
     clubsJoined: [],
-    designation: "Hostel Resident (Block A-204)"
+    designation: "Hostel Resident (Pearl Hostel - Room 204)"
   },
   {
     email: "hostel.student2@rajalakshmi.edu.in",
@@ -128,7 +128,7 @@ const EMAIL_REGISTRY = [
     isClubMember: false,
     isStaff: false,
     clubsJoined: [],
-    designation: "Hostel Resident (Girls Hostel B-108)"
+    designation: "Hostel Resident (Ruby Hostel - Room 108)"
   },
   {
     email: "student.dayscholar@rajalakshmi.edu.in",
@@ -142,7 +142,7 @@ const EMAIL_REGISTRY = [
     isClubMember: false,
     isStaff: false,
     clubsJoined: [],
-    designation: "Day Scholar Student (Bus Route 42)"
+    designation: "Day Scholar Student (J Block)"
   }
 ];
 

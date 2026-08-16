@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const { initDatabase } = require('./data/dbPersistence');
+
 const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
 const eventsRoutes = require('./routes/events');
@@ -9,6 +11,10 @@ const lostFoundRoutes = require('./routes/lostFound');
 const clubsRoutes = require('./routes/clubs');
 const messRoutes = require('./routes/mess');
 const canteenRoutes = require('./routes/canteen');
+const syncRoutes = require('./routes/sync');
+
+// Initialize persistent JSON database
+initDatabase();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +46,7 @@ app.use('/api/lost-found', lostFoundRoutes);
 app.use('/api/clubs', clubsRoutes);
 app.use('/api/mess', messRoutes);
 app.use('/api/canteen', canteenRoutes);
+app.use('/api/sync', syncRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
