@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REC Campus Companion — Rajalakshmi Engineering College</title>
+  <meta name="description" content="Your all-in-one campus hub for timetables, events, mess menu, canteen, clubs and lost & found at Rajalakshmi Engineering College." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════
+       AUTH OVERLAY
+  ══════════════════════════════════ -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="auth-card" id="auth-card">
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="url(#lg1)"/><path d="M12 20l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs></svg>
+        </div>
+        <div>
+          <h1 class="auth-title">REC Companion</h1>
+          <p class="auth-subtitle">Rajalakshmi Engineering College</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-email">Campus Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input id="login-email" type="email" placeholder="you@rajalakshmi.edu.in" required autocomplete="email" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input id="login-password" type="password" placeholder="Password@123" required autocomplete="current-password" />
+          </div>
+        </div>
+        <div class="demo-hint">
+          <span>Demo:</span> <code>admin@rajalakshmi.edu.in</code> / <code>Password@123</code>
+        </div>
+        <button type="submit" class="btn-primary" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loader hidden" id="login-loader">⟳</span>
+        </button>
+        <div class="auth-error hidden" id="login-error"></div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-name">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="reg-name" type="text" placeholder="Karthik R" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-dept">Department</label>
+            <div class="input-wrap">
+              <span class="input-icon">🏛</span>
+              <select id="reg-dept" required>
+                <option value="">Select Dept</option>
+                <option>CSE</option><option>ECE</option><option>IT</option>
+                <option>MECH</option><option>EEE</option><option>AIDS</option><option>BIOTECH</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Campus Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input id="reg-email" type="email" placeholder="you@rajalakshmi.edu.in" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input id="reg-password" type="password" placeholder="Min 8 chars" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-year">Year</label>
+            <div class="input-wrap">
+              <span class="input-icon">📆</span>
+              <select id="reg-year" required>
+                <option value="">Year</option>
+                <option>1st Year</option><option>2nd Year</option>
+                <option>3rd Year</option><option>4th Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Residence</label>
+            <div class="toggle-wrap">
+              <button type="button" class="toggle-btn active" id="day-btn" onclick="setHostel(false)">Day Scholar</button>
+              <button type="button" class="toggle-btn" id="host-btn" onclick="setHostel(true)">Hosteller</button>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="reg-hosteller" value="false" />
+        <button type="submit" class="btn-primary" id="reg-btn">Create Account</button>
+        <div class="auth-error hidden" id="reg-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════ -->
+  <div id="dashboard" class="dashboard hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon sm">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="url(#lg2)"/><path d="M12 20l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs></svg>
+        </div>
+        <span class="sidebar-brand">REC</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="home" onclick="navigate('home', this)">
+          <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+        </a>
+        <a href="#" class="nav-item" data-page="timetable" onclick="navigate('timetable', this)">
+          <span class="nav-icon">📅</span><span class="nav-label">Timetable</span>
+        </a>
+        <a href="#" class="nav-item" data-page="events" onclick="navigate('events', this)">
+          <span class="nav-icon">🎟️</span><span class="nav-label">Events</span>
+        </a>
+        <a href="#" class="nav-item" data-page="lostfound" onclick="navigate('lostfound', this)">
+          <span class="nav-icon">🔍</span><span class="nav-label">Lost & Found</span>
+        </a>
+        <a href="#" class="nav-item" data-page="clubs" onclick="navigate('clubs', this)">
+          <span class="nav-icon">🚀</span><span class="nav-label">Clubs</span>
+        </a>
+        <a href="#" class="nav-item" data-page="mess" onclick="navigate('mess', this)">
+          <span class="nav-icon">🍲</span><span class="nav-label">Mess</span>
+        </a>
+        <a href="#" class="nav-item" data-page="canteen" onclick="navigate('canteen', this)">
+          <span class="nav-icon">🍔</span><span class="nav-label">Canteen</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="user-chip" id="user-chip">
+          <div class="user-avatar" id="sidebar-avatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-name">User</div>
+            <div class="user-role" id="sidebar-role">student</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()" id="menu-btn" aria-label="Toggle menu">☰</button>
+        <div class="topbar-search">
+          <span>🔎</span>
+          <input type="text" placeholder="Search campus..." id="global-search" />
+        </div>
+        <div class="topbar-right">
+          <div class="notif-btn" title="Notifications">🔔<span class="notif-badge">3</span></div>
+          <div class="topbar-avatar" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- Pages -->
+      <div class="pages-container">
+
+        <!-- HOME PAGE -->
+        <section class="page active" id="page-home">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Welcome back, <span id="greeting-name">student</span> 👋</h2>
+              <p class="page-desc">Here's your campus at a glance</p>
+            </div>
+            <div class="date-badge" id="today-date"></div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-card" style="--accent:#6366f1">
+              <div class="stat-icon">📅</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-classes">—</div>
+                <div class="stat-label">Classes Today</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card" style="--accent:#ec4899">
+              <div class="stat-icon">🎟️</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-events">—</div>
+                <div class="stat-label">Upcoming Events</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card" style="--accent:#f59e0b">
+              <div class="stat-icon">🔍</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-lost">—</div>
+                <div class="stat-label">Lost Items</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card" style="--accent:#10b981">
+              <div class="stat-icon">🚀</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-clubs">—</div>
+                <div class="stat-label">Active Clubs</div>
+              </div>
+              <div class="stat-glow"></div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="section-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="navigate('timetable', document.querySelector('[data-page=timetable]'))">
+              <span>📅</span> View Timetable
+            </button>
+            <button class="qa-btn" onclick="navigate('events', document.querySelector('[data-page=events]'))">
+              <span>🎟️</span> Browse Events
+            </button>
+            <button class="qa-btn" onclick="navigate('lostfound', document.querySelector('[data-page=lostfound]'))">
+              <span>🔍</span> Lost & Found
+            </button>
+            <button class="qa-btn" onclick="navigate('canteen', document.querySelector('[data-page=canteen]'))">
+              <span>🍔</span> Canteen Menu
+            </button>
+          </div>
+
+          <!-- Recent Events Preview -->
+          <div class="section-header">
+            <h3>Recent Events</h3>
+            <a href="#" onclick="navigate('events', document.querySelector('[data-page=events]'))" class="see-all">See all →</a>
+          </div>
+          <div class="events-preview" id="home-events-preview">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <!-- TIMETABLE PAGE -->
+        <section class="page hidden" id="page-timetable">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">📅 Timetable</h2>
+              <p class="page-desc">Your weekly class schedule</p>
+            </div>
+          </div>
+          <div class="filter-bar">
+            <select id="tt-dept" onchange="loadTimetable()">
+              <option value="CSE">CSE</option><option value="ECE">ECE</option>
+              <option value="IT">IT</option><option value="MECH">MECH</option>
+              <option value="EEE">EEE</option><option value="AIDS">AIDS</option>
+              <option value="BIOTECH">BIOTECH</option>
+            </select>
+            <select id="tt-year" onchange="loadTimetable()">
+              <option value="1">1st Year</option><option value="2" selected>2nd Year</option>
+              <option value="3">3rd Year</option><option value="4">4th Year</option>
+            </select>
+            <select id="tt-section" onchange="loadTimetable()">
+              <option>A</option><option>B</option><option>C</option>
+            </select>
+            <button class="btn-sm" onclick="loadTimetable()">🔄 Refresh</button>
+          </div>
+          <div class="timetable-container" id="timetable-content">
+            <div class="loading-state">Loading schedule...</div>
+          </div>
+          <div class="section-header" style="margin-top:2rem">
+            <h3>🏫 Free Rooms Right Now</h3>
+            <button class="btn-sm" onclick="loadFreeRooms()">Find Rooms</button>
+          </div>
+          <div class="free-rooms-grid" id="free-rooms-content">
+            <div class="empty-state">Click "Find Rooms" to discover vacant classrooms</div>
+          </div>
+        </section>
+
+        <!-- EVENTS PAGE -->
+        <section class="page hidden" id="page-events">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🎟️ Campus Events</h2>
+              <p class="page-desc">Discover happenings around campus</p>
+            </div>
+          </div>
+          <div class="filter-bar">
+            <select id="ev-category" onchange="loadEvents()">
+              <option value="">All Categories</option>
+              <option>Tech</option><option>Cultural</option><option>Sports</option>
+              <option>Workshop</option><option>Seminar</option>
+            </select>
+            <button class="btn-sm" onclick="loadEvents()">🔄 Refresh</button>
+          </div>
+          <div class="events-grid" id="events-content">
+            <div class="loading-state">Loading events...</div>
+          </div>
+        </section>
+
+        <!-- LOST & FOUND PAGE -->
+        <section class="page hidden" id="page-lostfound">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🔍 Lost & Found</h2>
+              <p class="page-desc">Report or find your lost belongings</p>
+            </div>
+            <button class="btn-primary sm" onclick="showReportModal()">+ Report Item</button>
+          </div>
+          <div class="filter-bar">
+            <select id="lf-status" onchange="loadLostFound()">
+              <option value="">All</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+            </select>
+            <select id="lf-category" onchange="loadLostFound()">
+              <option value="">All Categories</option>
+              <option>Electronics</option><option>Books</option>
+              <option>Accessories</option><option>ID Cards</option><option>Others</option>
+            </select>
+            <input type="text" id="lf-search" placeholder="Search items..." oninput="loadLostFound()" />
+          </div>
+          <div class="lf-grid" id="lf-content">
+            <div class="loading-state">Loading items...</div>
+          </div>
+        </section>
+
+        <!-- CLUBS PAGE -->
+        <section class="page hidden" id="page-clubs">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🚀 Clubs & Societies</h2>
+              <p class="page-desc">Join, explore and stay connected</p>
+            </div>
+          </div>
+          <div class="clubs-grid" id="clubs-content">
+            <div class="loading-state">Loading clubs...</div>
+          </div>
+          <div class="section-header" style="margin-top:2rem">
+            <h3>📣 Club Announcements</h3>
+            <button class="btn-sm" onclick="loadAnnouncements()">Load Feed</button>
+          </div>
+          <div class="announcements-feed" id="announcements-content"></div>
+        </section>
+
+        <!-- MESS PAGE -->
+        <section class="page hidden" id="page-mess">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🍲 Hostel Mess</h2>
+              <p class="page-desc">Weekly menu & meal ratings</p>
+            </div>
+          </div>
+          <div class="filter-bar">
+            <select id="mess-day" onchange="loadMess()">
+              <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option><option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+            <button class="btn-sm" onclick="loadMess()">🔄 Load Menu</button>
+          </div>
+          <div class="mess-container" id="mess-content">
+            <div class="loading-state">Select a day to view the menu</div>
+          </div>
+        </section>
+
+        <!-- CANTEEN PAGE -->
+        <section class="page hidden" id="page-canteen">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">🍔 College Canteen</h2>
+              <p class="page-desc">Menu, prices & live ratings</p>
+            </div>
+          </div>
+          <div class="canteen-container" id="canteen-content">
+            <div class="loading-state">Loading canteen data...</div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- REPORT ITEM MODAL -->
+  <div class="modal-backdrop hidden" id="report-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📦 Report Lost / Found Item</h3>
+        <button class="modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+      <form onsubmit="submitReport(event)" class="modal-form">
+        <div class="form-group">
+          <label>Item Title</label>
+          <div class="input-wrap"><span class="input-icon">📦</span>
+            <input type="text" id="rep-title" placeholder="Casio Scientific Calculator" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <div class="input-wrap"><span class="input-icon">🔖</span>
+              <select id="rep-status">
+                <option value="lost">Lost</option>
+                <option value="found">Found</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <div class="input-wrap"><span class="input-icon">🏷️</span>
+              <select id="rep-category">
+                <option>Electronics</option><option>Books</option>
+                <option>Accessories</option><option>ID Cards</option><option>Others</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <div class="input-wrap"><span class="input-icon">📍</span>
+            <input type="text" id="rep-location" placeholder="Library 2nd Floor" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <div class="input-wrap"><span class="input-icon">📝</span>
+            <input type="text" id="rep-desc" placeholder="Describe the item..." />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Contact Phone</label>
+          <div class="input-wrap"><span class="input-icon">📱</span>
+            <input type="text" id="rep-phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Submit Report</button>
+        <div class="auth-error hidden" id="rep-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
